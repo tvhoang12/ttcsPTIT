@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Registation Form * Form Tutorial</title>
+	<!-- Latest compiled and minified CSS -->
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css">
+
+    <link href="style.css" rel = "stylesheet">
+
+	<!-- jQuery library -->
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+
+	<!-- Popper JS -->
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+
+	<!-- Latest compiled JavaScript -->
+	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js"></script>
+</head>
+<body>
+    <nav class="navbar_custom navbar navbar-expand-sm">
+        <div class="container-fluid">
+          <ul class="navbar-nav">
+            <li class="nav-item">
+              <a class="nav-link active nav-color-custom" href="#">StudyNow</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link nav-color-custom" href="#">Khóa học</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link nav-color-custom" href="#">Trắc nghiệm</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link nav-color-custom" href="#">Flashcard</a>
+            </li>
+            
+            <li class="nav-item">
+              <a class="nav-link nav-color-custom" href="#">Lên Lịch</a>
+            </li>
+          </ul>
+        </div>
+        <div class = "container-fluid justify-content-end">
+          <ul class="navbar-nav">
+            <li class="nav-item">
+              <a class="nav-link nav-color-custom" href="loginForm.html">Đăng nhập</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link nav-color-custom active-form" href="signUp.html">Đăng ký</a>
+            </li>
+          </ul>
+        </div>
+      </nav>
+	<div class="container">
+		<div class="panel panel-primary">
+			<div class="panel-heading">
+				<h2 class="text-center">Đăng ký tài khoản</h2>
+			</div>
+			<div class="panel-body">
+				<div class="form-group">
+				  <label for="usr">Tên người dùng:</label>
+				  <input required="true" type="text" class="form-control" id="usr">
+				</div>
+				<div class="form-group">
+				  <label for="email">Email:</label>
+				  <input required="true" type="email" class="form-control" id="email">
+				</div>
+				<div class="form-group">
+				  <label for="birthday">Ngày sinh:</label>
+				  <input type="date" class="form-control" id="birthday">
+				</div>
+				<div class="form-group">
+				  <label for="pwd">Mật khẩu:</label>
+				  <input required="true" type="password" class="form-control" id="pwd">
+				</div>
+				<div class="form-group">
+				  <label for="confirmation_pwd">Xác nhận lại mật khẩu:</label>
+				  <input required="true" type="password" class="form-control" id="confirmation_pwd">
+				</div>
+				<div class="form-group">
+				  <label for="address">Địa chỉ:</label>
+				  <input type="text" class="form-control" id="address">
+				</div>
+				<button class="btn btn-success">Đăng ký</button>
+                <span>Có tài khoản</span>
+                <button class = "btn btn-success" href="loginForm.html">Đăng nhập</button>
+			</div>
+		</div>
+	</div>
+</body>
+</html>

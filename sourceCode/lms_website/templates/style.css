@@ -1,0 +1,43 @@
+/* Căn giữa form */
+.form-container {
+    max-width: 350px; /* Điều chỉnh kích thước form nhỏ hơn */
+    margin: auto;
+    padding: 20px;
+    background: #f8f9fa;
+    border-radius: 10px;
+    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+}
+
+/* Căn giữa nội dung form */
+.d-flex-center {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-left: 100px;
+    margin-right: 100px;
+}
+
+.fakeimg {
+    height: 200px;
+    background: #aaa;
+}
+.navbar_custom {
+background-color: rgb(128, 157, 60);
+}
+.nav-color-custom {
+color: rgb(244, 255, 195);
+}
+
+.active-form {
+    background-color: #F4FFC3;
+    color: #5D8736;
+}
+
+body {
+    margin-left: 100px;
+    margin-right: 100px;
+  }
+
+.big-font {
+    font-size: 50px;
+}
