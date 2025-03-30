@@ -1,11 +1,16 @@
 from django.shortcuts import render, redirect
 from django.http import HttpResponse
-from django.contrib.auth import authenticate, login
+from django.contrib.auth import authenticate, login, get_user_model
 from django.contrib import messages
+from django.contrib.auth.decorators import login_required
+from django.views.decorators.csrf import csrf_exempt
+from .models import Users, Courses, Videos
+
+User = get_user_model()
 
 def login_view(request):
     if request.method == "POST":
-        username = request.POST.get("email")
+        username = request.POST.get("username")
         password = request.POST.get("password")
 
         # Kiểm tra tài khoản trong hệ thống
@@ -16,29 +21,55 @@ def login_view(request):
             return redirect("home")  # Điều hướng đến trang chính sau khi đăng nhập thành công
         else:
             messages.error(request, "Invalid username or password")  # Hiển thị lỗi nếu đăng nhập sai
-
-    return render(request, "pages/login.html")  # Render lại trang login nếu đăng nhập thất bại
+            return redirect("login")  # Quay lại trang đăng nhập
+    else:
+        return render(request, "pages/login.html")
 
 def signup_view(request):
     if request.method == "POST":
-        fullName = request.POST.get("fullName")
-        email = request.POST.get("email")
+        full_name = request.POST.get("fullName")  # Lấy họ tên
         username = request.POST.get("username")
+        email = request.POST.get("email")
         password = request.POST.get("password")
         confirm_password = request.POST.get("confirmPassword")
 
-        # Xử lý đăng ký (chẳng hạn, kiểm tra với database)
-        if email and username and password and confirm_password:
-            if password == confirm_password:
-                return HttpResponse(f"Đăng ký thành công! Email: {email}, Username: {username}, Password: {password}")
-            else:
-                return HttpResponse("Mật khẩu không khớp.")
-        else:
-            return HttpResponse("Vui lòng nhập đầy đủ thông tin.")
+        # ✅ Kiểm tra dữ liệu hợp lệ
+        if not all([full_name, username, email, password, confirm_password]):
+            messages.error(request, "Vui lòng nhập đầy đủ thông tin.")
+            return redirect("signup")
 
-    return render(request, "pages/signup.html")  # Hiển thị trang signup nếu chưa submit form
+        if password != confirm_password:
+            messages.error(request, "Mật khẩu nhập lại không khớp.")
+            return redirect("signup")
 
-from django.shortcuts import render
+        if User.objects.filter(username=username).exists():
+            messages.error(request, "Tên người dùng đã tồn tại.")
+            return redirect("signup")
+
+        if User.objects.filter(email=email).exists():
+            messages.error(request, "Email đã được sử dụng.")
+            return redirect("signup")
+
+        # ✅ Tách họ và tên
+        name_parts = full_name.split(" ", 1)
+        first_name = name_parts[0]
+        last_name = name_parts[1] if len(name_parts) > 1 else ""
+
+        # ✅ Tạo user mới
+        user = User.objects.create(
+            first_name=first_name,
+            last_name=last_name,
+            username=username,
+            email=email,
+        )
+        
+        user.set_password(password)  # Băm mật khẩu đúng chuẩn Django
+        user.save()  # Lưu user vào cơ sở dữ liệu
+
+        messages.success(request, "Đăng ký thành công! Bạn có thể đăng nhập.")
+        return redirect("login")
+
+    return render(request, "pages/signup.html")
 
 def start_view(request):
     return render(request, "index.html")

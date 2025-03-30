@@ -2,28 +2,13 @@ from django.utils.timezone import now
 from django.db import models
 from django.contrib.auth.models import AbstractUser
 
-class Users(AbstractUser):
+class Users(AbstractUser):  # ✅ Kế thừa từ AbstractUser
     avatar = models.ImageField(upload_to="images/", null=True, blank=True)
-    birthdate = models.DateField(null=True, blank=True)
-    address = models.CharField(max_length=100, null=True, blank=True)
-    phone = models.CharField(max_length=100, null=True, blank=True)
-    created_at = models.DateTimeField(default=now)
-    updated_at = models.DateTimeField(auto_now=True)
-
-    # Fix lỗi xung đột group và permissions
-    groups = models.ManyToManyField(
-        "auth.Group",
-        related_name="customuser_groups",
-        blank=True
-    )
-    user_permissions = models.ManyToManyField(
-        "auth.Permission",
-        related_name="customuser_permissions",
-        blank=True
-    )
+    created_at = models.DateField(default=now)  # Ngày tạo tài khoản mặc định là ngày hiện tại
+    updated_at = models.DateField(auto_now=True)  # Cập nhật tự động
 
     def __str__(self):
-        return self.email
+        return self.username
 
 # Courses Model
 class Courses(models.Model):

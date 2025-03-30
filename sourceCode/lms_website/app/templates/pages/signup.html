@@ -12,7 +12,7 @@
 
 <body>
   <div class="auth">
-    <a href="{% url 'home' %}" style="text-decoration: none;">
+    <a href="{% url 'start' %}" style="text-decoration: none;">
       <h1 class='auth-logo'>StudyNow</h1>
     </a>
 
@@ -25,24 +25,29 @@
       <div class="auth-form">
         <div class="entries">
           <img src="{% static 'background/user.png' %}">
-          <input class="input" type="text" placeholder="Họ và tên" required>
+          <input class="input" type="text" placeholder="Họ và tên" name = "fullName" required>
+        </div>
+
+        <div class="entries">
+          <img src="{% static 'background/user.png' %}">
+          <input class="input" type="text" placeholder="Username" name="username"required>
         </div>
 
         <div class="entries">
           <img src="{% static 'background/email.png' %}">
-          <input class="input" type="email" placeholder="Email" autocomplete="on" required>
+          <input class="input" type="email" placeholder="Email" name="email" autocomplete="on" required>
         </div>
 
         <div id="entries">
           <img src="{% static 'background/lock.png' %}">
-          <input class="input" type="password" placeholder="Nhập mật khẩu" required>
+          <input class="input" type="password" placeholder="Nhập mật khẩu" name="password"required>
         </div>
         <div id="entries">
           <img src="{% static 'background/lock.png' %}">
-          <input class="input" type="password" placeholder="Nhập lại mật khẩu" required>
+          <input class="input" type="password" placeholder="Nhập lại mật khẩu" name="confirmPassword" required>
         </div>
       </div>
-      <a href="{% url 'home' %}" style="text-decoration: none;"><input class="create-account" type="submit"
+      <a href="{% url 'start' %}" style="text-decoration: none;"><input class="create-account" type="submit"
           value="Tạo tài khoản"></a>
     </form>
     <p class="p2" style="text-align: center;">Already on StudyNow? <a href="{% url 'login' %}">Log in</a></p>

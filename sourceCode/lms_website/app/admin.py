@@ -4,7 +4,7 @@ from .models import Users, Courses, Videos
 # Hiển thị chi tiết Users trong admin
 @admin.register(Users)
 class UsersAdmin(admin.ModelAdmin):
-    list_display = ("id", "first_name", "last_name", "email", "phone", "created_at")  # Cột hiển thị
+    list_display = ("id", "first_name", "last_name", "email", "created_at")  # Cột hiển thị
     search_fields = ("first_name", "last_name", "email")  # Cho phép tìm kiếm
     list_filter = ("created_at",)  # Bộ lọc
     ordering = ("id",)  # Sắp xếp theo ID

@@ -21,13 +21,19 @@
     <p class="p2">Tự học trong thời gian rảnh rỗi </p>
     <p class="p2">từ các trường đại học và doanh nghiệp hàng đầu.</p>
 
+    {% for message in messages %}
+        <p class="{% if message.tags == 'success' %}success-message{% else %}error-message{% endif %}">
+            {{ message }}
+        </p>
+    {% endfor %}
+
     <form method="POST" action="{% url 'login' %}">
       {% csrf_token %}
 
       <div class="auth-form">
         <div class="entries">
           <img src="{% static 'background/user.png' %}">
-          <input class="input" type="text" placeholder="Email của bạn" autocomplete="on" name="email" required>
+          <input class="input" type="text" placeholder="Tên đăng nhập" autocomplete="on" name="username" required>
         </div>
 
         <div id="entries">
@@ -36,7 +42,7 @@
         </div>
       </div>
       <a href="{% url 'home' %}" style="text-decoration: none;"><input class="login-butt" type="submit"
-          value="Login"></a>
+          value="Đăng nhập"></a>
     </form>
   </div>
 </body>
