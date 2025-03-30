@@ -1,0 +1,44 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Đăng nhập - StudyNow </title>
+  <link rel="stylesheet" href="{% static 'css/authority.css' %}">
+</head>
+
+<body>
+  <div class="auth">
+    <a href="{% url 'home' %}" style="text-decoration: none;">
+      <h1 class='auth-logo'>StudyNow</h1>
+    </a>
+
+    <p class="p1">Đăng nhập</p>
+    <p class="p2">Tự học trong thời gian rảnh rỗi </p>
+    <p class="p2">từ các trường đại học và doanh nghiệp hàng đầu.</p>
+
+    <form method="POST" action="{% url 'login' %}">
+      {% csrf_token %}
+
+      <div class="auth-form">
+        <div class="entries">
+          <img src="{% static 'background/user.png' %}">
+          <input class="input" type="text" placeholder="Email của bạn" autocomplete="on" name="email" required>
+        </div>
+
+        <div id="entries">
+          <img src="{% static 'background/lock.png' %}">
+          <input class="input" type="password" placeholder="Mật khẩu của bạn" autocomplete="on" name="password" required>
+        </div>
+      </div>
+      <a href="{% url 'home' %}" style="text-decoration: none;"><input class="login-butt" type="submit"
+          value="Login"></a>
+    </form>
+  </div>
+</body>
+
+</html>

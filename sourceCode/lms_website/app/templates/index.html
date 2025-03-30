@@ -1,0 +1,38 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>StudyNow | Học ngay cho tương lai của bạn</title>
+  <link rel="stylesheet" href="{% static 'css/stylms.css' %}">
+</head>
+
+<body>
+  <header>
+    <a href="{% url 'home' %}" style="text-decoration: none;"><h1 class='logo'>StudyNow</h1></a>
+  </header>
+
+  <main>
+    <div class="hero-content">
+      <p class="p1">Học không giới hạn</p>
+      <p class="p2">Nâng tầm chính bản thân bạn với trải nghiệm học cấp quốc tế</p>
+      <a href="{% url 'signup' %}">
+        <input class='signup-butt' type="button" value="Đăng ký"></a>
+      <a href="{% url 'login' %}">
+        <input class='login-butt' type="button" value="Đăng nhập"></a>
+    </div>
+    <div class="hero-image">
+      <img src="{% static 'background/hero.png' %}" alt="hero-image">
+    </div>
+  </main>
+
+  <footer>
+    <p><small>Copyright &copy; 2025 Hghg</small></p>
+  </footer>
+</body>
+
+</html>
