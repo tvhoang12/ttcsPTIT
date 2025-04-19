@@ -1,0 +1,103 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ post.title }} - Tech2 etc Tutorial</title>
+    <link rel="stylesheet" href="https://pro.fontawesome.com/releases/v5.10.0/css/all.css" />
+    <link rel="stylesheet" href="{% static 'style.css' %}">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js" integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav>
+        <img src="{% static 'images/logo.svg' %}" alt="Logo" class="logo">
+        <div class="navigation">
+            <ul class="nav-links">
+                <li><a href="{% url 'home' %}">Home</a></li>
+                <li><a href="{% url 'about' %}">About</a></li>
+                <li><a class="active" href="{% url 'blog' %}">Blog</a></li>
+                <li><a href="{% url 'courses' %}">Courses</a></li>
+                <li><a href="{% url 'contact' %}">Contact</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- Post Detail Section -->
+    <section id="post-detail">
+        <h1>{{ post.title }}</h1>
+        <p class="post-meta">Posted on {{ post.created_at }} by {{ post.author.username|default:"Unknown" }}</p>
+        {% if post.thumbnail %}
+        <img src="{{ post.thumbnail.url }}" alt="{{ post.title }}" class="post-image">
+        {% else %}
+        <img src="{% static 'images/placeholder.jpg' %}" alt="Placeholder" class="post-image">
+        {% endif %}
+        <div class="post-content">
+            <ul class="post-meta" style="list-style-type: none; padding-left: 0px;">
+                <li><i class="fa fa-tag"></i><a>{{ post.category }}</a></li>
+                <li><i class="fa fa-comment"></i><a>{{ post.comments.all.count }} Comments</a></li>
+                <li><i class="fa fa-user"></i><a>Post By {{ post.author.first_name }}</a></li>
+                <li><i class="fa fa-clock-o"></i><a>{{ post.created_at|date:"d F" }}</a></li>
+            </ul>
+        </div>
+        <a href="{% url 'blog' %}" class="back-btn">Back to Blog</a>
+
+        
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <div class="footer-col">
+            <h3>Top Products</h3>
+            <li>Manage Reputation</li>
+            <li>Power Tools</li>
+            <li>Marketing</li>
+            <li>Analytics</li>
+            <li>Commerce</li>
+        </div>
+        <div class="footer-col">
+            <h3>Quick Links</h3>
+            <li>Jobs</li>
+            <li>Brand Assets</li>
+            <li>Investor Relations</li>
+            <li>Terms of Service</li>
+            <li>Privacy Policy</li>
+        </div>
+        <div class="footer-col">
+            <h3>Features</h3>
+            <li>Business Marketing</li>
+            <li>User Analytics</li>
+            <li>Live Chat</li>
+            <li>Unlimited Support</li>
+            <li>API Access</li>
+        </div>
+        <div class="footer-col">
+            <h3>Resources</h3>
+            <li>IOS & Android</li>
+            <li>Watch a Demo</li>
+            <li>Customers</li>
+            <li>API</li>
+            <li>Site Map</li>
+        </div>
+        <div class="footer-col">
+            <h3>Newsletter</h3>
+            <p>You can trust us. We only send promo offers,</p>
+            <div class="subscribe">
+                <input type="text" placeholder="Email address" name="" id="">
+                <a href="#" class="btn">Subscribe</a>
+            </div>
+        </div>
+        <div class="copyright">
+            <p>Copyright © 2025 Hghg. All rights reserved.</p>
+            <div class="pro-links">
+                <i class="fab fa-facebook-f"></i>
+                <i class="fab fa-twitter"></i>
+                <i class="fab fa-linkedin-in"></i>
+                <i class="fab fa-instagram"></i>
+            </div>
+        </div>
+    </footer>
+</body>
+</html>

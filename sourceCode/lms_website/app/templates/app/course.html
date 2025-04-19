@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tech2 etc Tutorial - Courses</title>
+
+    <link rel="stylesheet" href="https://pro.fontawesome.com/releases/v5.10.0/css/all.css" />
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"
+        integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav>
+        <img src="{% static 'images/logo.svg' %}" alt="Logo" class="logo">
+        <div class="navigation">
+            <ul class="nav-links">
+                <li><a href="{% url 'home' %}">Home</a></li>
+                <li><a href="{% url 'about' %}">About</a></li>
+                <li><a href="{% url 'blog' %}">Blog</a></li>
+                <li><a class="active" href="{% url 'courses' %}">Courses</a></li>
+                <li><a href="{% url 'contact' %}">Contact</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- Courses Section -->
+    <section class="courses">
+        <h2>Our Courses</h2>
+        <div class="course-grid">
+            {% for course in courses %}
+                <div class="course-card">
+                    <img src="{{ course.image.url|default:'/static/images/default_course.jpg' }}" alt="{{ course.title }}">
+                    <h3>{{ course.title }}</h3>
+                    <p>{{ course.description|truncatewords:20 }}</p>
+                    <a href="{% url 'course_detail' course.id %}" class="btn">Learn More</a>
+                </div>
+            {% empty %}
+                <p>No courses available at the moment.</p>
+            {% endfor %}
+        </div>
+
+        <!-- Pagination -->
+        {% if page_obj.has_other_pages %}
+            <div class="pagination">
+                {% if page_obj.has_previous %}
+                    <a href="?page={{ page_obj.previous_page_number }}"><i class="fas fa-chevron-left"></i></a>
+                {% endif %}
+                {% for num in page_obj.paginator.page_range %}
+                    {% if page_obj.number == num %}
+                        <span class="active">{{ num }}</span>
+                    {% else %}
+                        <a href="?page={{ num }}">{{ num }}</a>
+                    {% endif %}
+                {% endfor %}
+                {% if page_obj.has_next %}
+                    <a href="?page={{ page_obj.next_page_number }}"><i class="fas fa-chevron-right"></i></a>
+                {% endif %}
+            </div>
+        {% endif %}
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <p>&copy; 2025 Tech2 etc Tutorial. All rights reserved.</p>
+    </footer>
+
+    <script>
+        // Navigation Bar Toggle (if needed for mobile)
+        $(document).ready(function() {
+            $('.fa-bars').click(function() {
+                $('.nav-links').slideToggle();
+            });
+        });
+    </script>
+</body>
+</html>

@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Users, Courses, Videos
+from .models import Users, Courses, Videos, Posts
 
 # Hiển thị chi tiết Users trong admin
 @admin.register(Users)
@@ -22,3 +22,11 @@ class VideosAdmin(admin.ModelAdmin):
     list_display = ("id", "name", "created_at")  
     search_fields = ("name",)  
     list_filter = ("created_at",)
+
+# Hiển thị Posts trong admin
+@admin.register(Posts)
+class PostsAdmin(admin.ModelAdmin):
+    list_display = ("id", "title", "created_at")  
+    search_fields = ("title",)  
+    list_filter = ("created_at",)
+    ordering = ("id",)
