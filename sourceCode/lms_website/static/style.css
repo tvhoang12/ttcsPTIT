@@ -1,0 +1,664 @@
+@import url("https://fonts.googleapis.com/css2?family=Poppins:wght@100;200;300;400;500;600;700;800;900&display=swap");
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: "Poppins", sans-serif;
+}
+
+body {
+  font-family: "Poppins", sans-serif;
+}
+
+/* Global Tags */
+
+h1 {
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: rgb(35, 35, 85);
+}
+
+span {
+  font-size: 0.9rem;
+  color: #757373;
+}
+
+h6 {
+  font-size: 1.3rem;
+  color: rgb(24, 24, 49);
+}
+
+/* Navigation */
+nav {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  padding: 5px 30px; /* Giảm padding để giảm chiều cao */
+  background-color: #fff;
+  box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+nav img {
+  width: 100px;
+  height: 100px;
+  cursor: pointer;
+}
+nav .navigation ul {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+}
+nav .navigation ul li {
+  list-style: none;
+  margin: 0 2vw;
+  font-size: 20px;
+  font-weight: 500;
+  color: rgb(24, 24, 49);
+}
+
+nav .navigation ul li a {
+  color: rgb(21, 21, 100);
+  transition: all 0.3s ease-in-out;
+  font-size: 20px;
+  font-weight: 500;
+  text-decoration: none;
+}
+
+nav .navigation ul li a.active,
+nav .navigation ul li a:hover {
+  color:#FDC93B;
+}
+
+/* Home */
+#home {
+  background-image: linear-gradient(rgba(9, 5, 54, 0.5), rgba(5, 4, 46, 0.7)), url("images/back.jpg");
+  width :100%;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  padding: 5vw 8vw;
+  background-color: #f9f9f9;
+  background-size: cover;
+  padding-top : 40px;
+}
+
+#home h1 {
+  font-size: 3rem;
+  color: #fff;
+  margin-bottom: 1vw;
+}
+
+#home p {
+  font-size: 1.2rem;
+  color: #fff;
+  margin-bottom: 2vw;
+}
+
+#home .btn {
+  background-color: #FDC93B;
+  color: #fff;
+  padding: 1vw 2vw;
+  border-radius: 5px;
+  text-decoration: none;
+  font-size: 1.2rem;
+  font-weight: 500;
+  transition: all 0.3s ease-in-out;
+}
+
+#home .btn:hover {
+  background-color: #fff;
+  color: #FDC93B;
+  border: 2px solid #FDC93B;
+}
+
+#home a {
+  background-color: #FDC93B;
+  color: #fff;
+  padding: 1vw 2vw;
+  border-radius: 5px;
+  text-decoration: none;
+  font-size: 1.2rem;
+  font-weight: 500;
+  transition: all 0.3s ease-in-out;
+}
+
+
+/* features */
+#features {
+  text-align: center;
+  padding: 5vw 8vw;
+}
+
+#features .fea-base {
+    display: flex; /* Thay grid bằng flex */
+    flex-wrap: wrap; /* Cho phép các phần tử xuống dòng nếu cần */
+    gap: 1rem; /* Thay grid-gap bằng gap (hỗ trợ trong flexbox) */
+    justify-content: center; /* Căn giữa các phần tử theo chiều ngang */
+}
+
+#features .fea-box {
+  background-color: #fff;
+  text-align: start;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0px 5px 7px rgba(0, 0, 0, 0.1);
+  width: 350px; /* Định kích thước tối ưu */
+}
+
+#features .fea-box i {
+  font-size: 3rem;
+  color: rgb(24, 24, 49);
+}
+#features .fea-box h3 {
+  font-size: 1.5rem;
+  color: rgb(24, 24, 51);
+  margin-bottom: 1vw;
+  padding:13px 0 7px 0;
+}
+
+/* course */
+
+#course {
+  background-color: #f9f9f9;
+  text-align: center;
+  align-items: center;
+  padding: 8vw 8vw 0 8vw;
+}
+
+#course .course-box {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); /* Tự động điều chỉnh số cột */
+  grid-gap: 2rem; /* Khoảng cách giữa các ô */
+  justify-items: center; /* Căn giữa các ô trong lưới */
+  align-items: center; /* Căn giữa các ô trong lưới */
+}
+
+#course .course-card {
+  background-color: #fff;
+  text-align: start;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0px 5px 7px rgba(0, 0, 0, 0.1);
+  width: 350px; /* Định kích thước tối ưu */
+  height: 100%;
+  position: relative; /* Để có thể sử dụng position absolute cho cost */
+  overflow: hidden; /* Để không bị tràn ra ngoài */
+}
+
+#course .course-card img {
+  width: 100%;
+  height: 200px;
+  border-radius: 8px;
+}
+
+#course .course-card h3 {
+  font-size: 1.5rem;
+  color: rgb(24, 24, 51);
+  margin-bottom: 1vw;
+  padding:13px 0 7px 0;
+}
+#course .course-card h6 {
+  font-size: 1.2rem;
+  color: rgb(24, 24, 49);
+  margin-bottom: 1vw;
+}
+#course .course-card p {
+  font-size: 1rem;
+  color: rgb(24, 24, 49);
+  margin-bottom: 1vw;
+}
+#course .course-card .btn {
+  background-color: #FDC93B;
+  color: #fff;
+  padding: 1vw 2vw;
+  border-radius: 5px;
+  text-decoration: none;
+  font-size: 1.2rem;
+  font-weight: 500;
+  transition: all 0.3s ease-in-out;
+}
+#course .course-card .btn:hover {
+  background-color: #fff;
+  color: #FDC93B;
+  border: 2px solid #FDC93B;
+}
+
+#course .course-card .cost {
+  background-color: rgb(74, 74, 136);
+  color: #fff;
+  line-height: 70px;
+  width:70px;
+  height: 70px;
+  border-radius: 50%;
+  text-align: center;
+  border-radius: 50%;
+  position: absolute;
+  right: 15px;
+  bottom: 20px;
+}
+
+/* registration */
+
+#registration {
+  text-align: center;
+  padding: 6vw 8vw 6vw 8vw;
+  background-image: linear-gradient(rgba(99, 112, 168, 0.2), rgba(81, 91, 233, 0.3)), url("images/signup.jpg");
+  width: 100%;
+  height: 100%;
+  display: flex;
+  background-size: cover;
+  background-position: center;
+  justify-content: space-between;
+  align-items: center;
+}
+
+#registration .reminder {
+  color : #fff;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  padding: 5vw 8vw;
+}
+#registration .reminder h1 {
+  font-size: 3rem;
+  color: #fff;
+  margin-bottom: 1vw;
+}
+
+#registration .reminder .time {
+  display: flex;
+  margin-top: 40px;
+}
+
+#registration .reminder .time .date {
+  text-align: center;
+  padding: 13px 33px;
+  background: rgba(255, 255, 255, 0.25);
+  backdrop-filter: blur(10px);
+  border-radius: 10px;
+  box-shadow: 0px 5px 7px rgba(31, 38, 135, 0.37);
+  margin: 0 5px 10px 5px;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  font-size: 1.1 rem;
+  font-weight: 600;
+}
+
+#registration .form {
+  background-color: #fff;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  padding: 5vw 8vw;
+  box-shadow: 0px 5px 7px rgba(0, 0, 0, 0.1);
+}
+
+#registration .form h3 {
+  font-size: 1.2rem;
+  color: rgb(24, 24, 49);
+  margin-bottom: 1vw;
+}
+
+#registration .form input {
+  width: 100%;
+  padding: 1vw;
+  margin: 1vw 0;
+  border-radius: 5px;
+  border: 1px solid #ccc;
+}
+#registration .form input[type="submit"] {
+  background-color: #FDC93B;
+  color: #fff;
+  border: none;
+  cursor: pointer;
+  transition: all 0.3s ease-in-out;
+}
+#registration .form input[type="submit"]:hover {
+  background-color: #fff;
+  color: #FDC93B;
+  border: 2px solid #FDC93B;
+  transform: scale(1.05);
+}
+
+/* experts */
+
+#experts {
+  padding: 8vw 8vw 0 8vw;
+  text-align: center;
+}
+
+#experts .experts-box {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); /* Tự động điều chỉnh số cột */
+  grid-gap: 2rem; /* Khoảng cách giữa các ô */
+  justify-items: center; /* Căn giữa các ô trong lưới */
+  align-items: center; /* Căn giữa các ô trong lưới */
+}
+
+#experts .experts-card {
+  background-color: #fff;
+  text-align: center;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0px 5px 7px rgba(0, 0, 0, 0.1);
+  width: 300px; /* Định kích thước tối ưu */
+}
+
+.pro-links i {
+  padding: 10px 13px;
+  border: 1px solid rgba(21, 21,100, 0.1);
+  cursor: pointer;
+}
+
+.pro-links i:hover {
+  background-color: rgb(21, 21, 100);
+  color: #fff;
+  border: 1px solid rgba(21, 21,100);
+  transform: scale(1.05);
+}
+
+footer {
+  background-color: #101C32;
+  padding: 5vw 8vw;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  flex-wrap: wrap;
+  position: relative; /* Để điều chỉnh vị trí copyright nếu cần */
+}
+
+footer .footer-col {
+  padding-bottom: 40px;
+}
+
+/* Kiểu dáng cho copyright */
+footer .copyright {
+  width: 100%; /* Chiếm toàn chiều rộng footer */
+  text-align: center; /* Căn giữa nội dung */
+  padding-top: 20px; /* Khoảng cách với các cột phía trên */
+  border-top: 1px solid #334F6C; /* Đường viền nhẹ để tách biệt */
+}
+
+footer .copyright p {
+  font-size: 15px;
+  color: #7b838a;
+  font-weight: 500;
+  margin: 0; /* Loại bỏ padding mặc định */
+  padding: 10px 0;
+}
+
+footer .copyright .pro-links {
+  display: flex;
+  justify-content: center; /* Căn giữa các biểu tượng */
+  gap: 15px; /* Khoảng cách giữa các biểu tượng */
+  padding: 10px 0;
+}
+
+footer .copyright .pro-links i {
+  color: #7b838a; /* Màu mặc định cho biểu tượng */
+  font-size: 18px; /* Kích thước biểu tượng */
+  transition: color 0.3s ease-in-out; /* Hiệu ứng chuyển màu */
+}
+
+footer .copyright .pro-links i:hover {
+  color: #FDC93B; /* Màu khi hover, đồng bộ với giao diện */
+}
+
+/* Giữ nguyên các kiểu dáng khác của footer */
+footer .footer-col h3 {
+  font-size: 600;
+  color: rgb(241, 241, 245);
+  padding-bottom: 20px;
+}
+
+footer li {
+  list-style: none;
+  padding: 10px 0;
+  font-size: 15px;
+  color: #7b838a;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+footer li:hover {
+  color: #FDC93B;
+  transition: all 0.3s ease-in-out;
+}
+
+footer input {
+  width: 220px;
+  padding: 15px 12px;
+  background: #334F6C;
+  border: none;
+  outline: none;
+  color: #fff;
+}
+
+footer .subscribe a.btn {
+  background-color: #FDC93B;
+  color: #fff;
+  padding: 1vw 2vw;
+  border-radius: 5px;
+  text-decoration: none;
+  font-size: 1.2rem;
+  font-weight: 500;
+  transition: all 0.3s ease-in-out;
+}
+
+footer .footer-col p {
+  list-style: none;
+  padding: 10px 0;
+  font-size: 15px;
+  color: #7b838a;
+  font-weight: 500;
+}
+
+footer .subscribe a.btn:hover {
+  background-color: #fff;
+  color: #FDC93B;
+  border: 2px solid #FDC93B;
+}
+
+/* About */
+#about-home {
+  background-image: linear-gradient(rgba(9, 5, 54, 0.5), rgba(5, 4, 46, 0.7)), url("images/back1.jpg");
+  width: 100%;
+  height: 60vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  padding: 5vw 8vw;
+  background-color: #f9f9f9;
+  background-size: cover;
+}
+
+#about-home h1 {
+  font-size: 3rem;
+  color: #fff;
+  margin-bottom: 1vw;
+  letter-spacing: 1px;
+}
+
+#about-container {
+  display: flex;
+  align-items: center;
+  padding: 8vw 8vw 0 8vw;
+  text-align: center;
+}
+
+#about-container .about-img {
+  width: 60%;
+}
+
+#about-container .about-text {
+  width: 40%;
+  padding: 20px;
+}
+
+#about-container .about-text h2 {
+  color: rgb(24, 24, 49);
+  padding-bottom: 15px;
+}
+#about-container .about-text p {
+  color: rgb(24, 24, 49);
+  font-weight: 300;
+}
+#about-container .about-text .about-fe {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-top: 20px;
+}
+
+#about-container .about-text .about-fe img {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  margin-right: 20px;
+}
+
+#about-container .about-text .about-fe .about-fe-text {
+  width: 90%;
+}
+
+#trust {
+  text-align: center;
+  padding: 4vw;
+}
+
+#trust .trust-img {
+  margin-top: 60px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+#trust .trust-img img {
+  width: 90px;
+  height: auto;
+}
+
+/* Blog */
+
+#blog-container {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  padding: 8vw 8vw 0 8vw;
+}
+
+#blog-container .blog-box {
+  width: 50%;
+}
+
+#blog-container .blog-box .post {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+#blog-container .blog-box img {
+  width : 90%;
+  height: auto;
+  align-items: center;
+  border-radius: 8px;
+}
+
+#blog-container .blog-box h2 {
+  font-size: 1.5rem;
+  color: rgb(24, 24, 51);
+  margin-bottom: 1vw;
+  padding:13px 0 7px 0;
+}
+
+#blog-container .blog-box p {
+  font-size: 1.2rem;
+  color: rgb(24, 24, 49);
+  margin-bottom: 1vw;
+}
+
+#blog-container .blog-box .read-more-btn {
+  font-size: 1rem;
+  background-color: rgb(24, 24, 49);
+  color: #fff;
+  padding: 1vw 2vw;
+  margin-bottom: 1vw;
+  border-radius: 10px;
+  text-decoration: none;        /* Xóa gạch chân */
+  display: inline-block;        /* Cho padding có hiệu lực */
+  transition: all 0.3s ease-in-out;
+}
+
+#blog-container .blog-box .read-more-btn:hover {
+  background-color: #FDC93B;
+  color: rgb(24, 24, 49);       /* Tùy chọn: đổi màu chữ khi hover */
+}
+
+
+#blog-container .cate {
+  width: 20%; 
+  padding-right: 20px;
+  margin-left: 5px; /* Dịch sang trái và cách lề trái 10px */
+}
+
+#blog-container .cate h2 {
+  font-size: 1.2rem; /* Giảm từ 1.5rem xuống 1.2rem */
+  color: rgb(24, 24, 51);
+  margin-bottom: 1vw;
+  padding: 10px 0 5px 0;
+}
+
+#blog-container .cate p {
+  font-size: 0.8rem; 
+  color: rgb(24, 24, 49);
+  margin-bottom: 1vw;
+}
+
+#blog-container .cate a {
+  text-decoration: none;
+  color: rgb(24, 24, 49);
+  font-size: 1rem;
+  font-weight: 500;
+}
+
+#blog-container .cate a:hover {
+  color: #FDC93B;
+  transition: all 0.3s ease-in-out;
+}
+
+/* Điều chỉnh hr để phù hợp kích thước nhỏ hơn */
+#blog-container .cate hr {
+  margin: 5px 0;
+  border: 0;
+  border-top: 1px solid #ccc;
+} 
+
+#blog-container .cate .cate-box {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+#blog-container .cate .cate-box img {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  margin-right: 20px;
+}
+
+/* Course_inner */
+
+/* contact */
+
+/* responsive */
