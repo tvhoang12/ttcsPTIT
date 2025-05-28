@@ -5,99 +5,150 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ post.title }} - Tech2 etc Tutorial</title>
+    <title>{{ blog.title }} - Techedu</title>
     <link rel="stylesheet" href="https://pro.fontawesome.com/releases/v5.10.0/css/all.css" />
     <link rel="stylesheet" href="{% static 'style.css' %}">
     <script src="https://code.jquery.com/jquery-3.6.0.min.js" integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
+    <script src="{% static 'js/script.js' %}"></script>
+    <style>
+        #blog-detail {
+            max-width: 800px;
+            margin: 40px auto;
+            background: none;
+            border-radius: 0;
+            box-shadow: none;
+            padding: 32px 24px;
+        }
+        #blog-detail h1 {
+            max-width: 800px;
+            margin: 0 auto 18px auto;
+            text-align: left;
+            word-break: break-word;
+            font-size: 30px;
+        }
+        .blog-content {
+            font-size: 16px;
+            line-height: 1.6;
+            color: #333;
+            text-align: left;
+        }
+        .blog-content img {
+            display: block;
+            margin: 24px auto;
+            max-width: 100%;
+            height: auto;
+        }
+        @media (max-width: 1200px) {
+            #blog-detail, #blog-detail h1 {
+                max-width: 98vw;
+                padding-left: 2vw;
+                padding-right: 2vw;
+            }
+        }
+    </style>
 </head>
 <body>
-    <!-- Navigation -->
-    <nav>
-        <img src="{% static 'images/logo.svg' %}" alt="Logo" class="logo">
-        <div class="navigation">
-            <ul class="nav-links">
-                <li><a href="{% url 'home' %}">Home</a></li>
-                <li><a href="{% url 'about' %}">About</a></li>
-                <li><a class="active" href="{% url 'blog' %}">Blog</a></li>
-                <li><a href="{% url 'courses' %}">Courses</a></li>
-                <li><a href="{% url 'contact' %}">Contact</a></li>
-            </ul>
-        </div>
-    </nav>
+    {% include 'app/navigation.html' %}
 
     <!-- Post Detail Section -->
-    <section id="post-detail">
-        <h1>{{ post.title }}</h1>
-        <p class="post-meta">Posted on {{ post.created_at }} by {{ post.author.username|default:"Unknown" }}</p>
-        {% if post.thumbnail %}
-        <img src="{{ post.thumbnail.url }}" alt="{{ post.title }}" class="post-image">
-        {% else %}
-        <img src="{% static 'images/placeholder.jpg' %}" alt="Placeholder" class="post-image">
-        {% endif %}
-        <div class="post-content">
-            <ul class="post-meta" style="list-style-type: none; padding-left: 0px;">
-                <li><i class="fa fa-tag"></i><a>{{ post.category }}</a></li>
-                <li><i class="fa fa-comment"></i><a>{{ post.comments.all.count }} Comments</a></li>
-                <li><i class="fa fa-user"></i><a>Post By {{ post.author.first_name }}</a></li>
-                <li><i class="fa fa-clock-o"></i><a>{{ post.created_at|date:"d F" }}</a></li>
-            </ul>
+    <section id="blog-detail">
+        <a href="{% url 'blog' %}" class="back-btn" style="margin-left: 10px;">← Quay lại danh sách Blog</a>
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+            <h1 style="margin-bottom: 0;">{{ blog.title }}</h1>
+            
         </div>
-        <a href="{% url 'blog' %}" class="back-btn">Back to Blog</a>
+        <p style="color: #888; font-size: 0.95em; text-align: left;">
+            Đăng bởi <b>{{ blog.author.get_full_name|default:blog.author.username }}</b>
+            &nbsp;|&nbsp;
+            <i class="fa fa-clock"></i> {{ blog.created_at|date:"d/m/Y H:i" }}
+        </p>
+        <hr>
+        <div class="blog-content" style="margin: 24px 0;">
+            {{ blog.content|safe }}
+        </div>
 
-        
+        <!-- Comment Section -->
+        <div id="comments-section">
+            <h3>Bình luận</h3>
+            {% if user.is_authenticated %}
+            <form id="comment-form" method="post" style="margin-bottom: 18px; display: flex; justify-content: center;">
+                {% csrf_token %}
+                <div style="display: flex; align-items: flex-end; width: 100%; max-width: 800px; background: #f7f7f7; border-radius: 12px; border: 1px solid #ccc; padding: 8px 12px; gap: 8px;">
+                    <textarea name="content" class="comment-input"
+                        rows="3"
+                        style="flex:1; font-size:16px; border:none; background:transparent; resize:vertical; outline:none; min-height:48px; max-height:120px; padding:8px 0;"
+                        placeholder="Nhập bình luận..."></textarea>
+                    <input type="hidden" name="parent_id" id="parent_id_input" value="">
+                    <button type="button" class="icon-btn" tabindex="-1" style="background:none; border:none; font-size:20px; color:#888; cursor:pointer; margin-bottom:4px; width:32px; height:32px; display:flex; align-items:center; justify-content:center;">
+                        <i class="far fa-smile"></i>
+                    </button>
+                    <button type="submit" class="send-btn" style="background:none; border:none; color:inherit; width:32px; height:32px; display:flex; align-items:center; justify-content:center; font-size:20px; cursor:pointer; margin-bottom:4px;">
+                        <i class="fas fa-paper-plane" style="color:#888;"></i>
+                    </button>
+                </div>
+            </form>
+            {% else %}
+                <p>Bạn cần <a href="{% url 'login' %}?next={{ request.path }}">đăng nhập</a> để bình luận.</p>
+            {% endif %}
+
+            <div class="comments-list" id="comments-list">
+                {% for comment in comments %}
+                    <div class="comment" style="margin-bottom: 18px; border-bottom: 1px solid #eee; padding-bottom: 8px;">
+                        <b>{{ comment.user.get_full_name|default:comment.user.username }}</b>
+                        <span style="color: #888; font-size: 0.9em;">{{ comment.created_at|date:"d/m/Y H:i" }}</span>
+                        <div>{{ comment.content|linebreaks }}</div>
+                        {% if user.is_authenticated %}
+                            <a href="#" class="reply-btn" data-comment-id="{{ comment.id }}">Trả lời</a>
+                        {% endif %}
+                        {% for reply in comment.replies.all %}
+                            <div class="reply" style="margin-left: 32px; margin-top: 8px; color: #444;">
+                                <b>{{ reply.user.get_full_name|default:reply.user.username }}</b>
+                                <span style="color: #888; font-size: 0.85em;">{{ reply.created_at|date:"d/m/Y H:i" }}</span>
+                                <div>{{ reply.content|linebreaks }}</div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% empty %}
+                    <p>Chưa có bình luận nào.</p>
+                {% endfor %}
+            </div>
+        </div>
     </section>
 
-    <!-- Footer -->
-    <footer>
-        <div class="footer-col">
-            <h3>Top Products</h3>
-            <li>Manage Reputation</li>
-            <li>Power Tools</li>
-            <li>Marketing</li>
-            <li>Analytics</li>
-            <li>Commerce</li>
-        </div>
-        <div class="footer-col">
-            <h3>Quick Links</h3>
-            <li>Jobs</li>
-            <li>Brand Assets</li>
-            <li>Investor Relations</li>
-            <li>Terms of Service</li>
-            <li>Privacy Policy</li>
-        </div>
-        <div class="footer-col">
-            <h3>Features</h3>
-            <li>Business Marketing</li>
-            <li>User Analytics</li>
-            <li>Live Chat</li>
-            <li>Unlimited Support</li>
-            <li>API Access</li>
-        </div>
-        <div class="footer-col">
-            <h3>Resources</h3>
-            <li>IOS & Android</li>
-            <li>Watch a Demo</li>
-            <li>Customers</li>
-            <li>API</li>
-            <li>Site Map</li>
-        </div>
-        <div class="footer-col">
-            <h3>Newsletter</h3>
-            <p>You can trust us. We only send promo offers,</p>
-            <div class="subscribe">
-                <input type="text" placeholder="Email address" name="" id="">
-                <a href="#" class="btn">Subscribe</a>
-            </div>
-        </div>
-        <div class="copyright">
-            <p>Copyright © 2025 Hghg. All rights reserved.</p>
-            <div class="pro-links">
-                <i class="fab fa-facebook-f"></i>
-                <i class="fab fa-twitter"></i>
-                <i class="fab fa-linkedin-in"></i>
-                <i class="fab fa-instagram"></i>
-            </div>
-        </div>
-    </footer>
+    {% include 'app/footer.html' %}
+
+    <script>
+    // Khi nhấn nút trả lời, set parent_id cho form
+    document.querySelectorAll('.reply-btn').forEach(function(btn) {
+        btn.addEventListener('click', function(e) {
+            e.preventDefault();
+            var parentId = this.getAttribute('data-comment-id');
+            document.getElementById('parent_id_input').value = parentId;
+            document.querySelector('.comment-input').focus();
+        });
+    });
+
+    // AJAX submit comment
+    $('#comment-form').on('submit', function(e) {
+        e.preventDefault();
+        var $form = $(this);
+        var formData = $form.serialize();
+        $.ajax({
+            url: window.location.href,
+            type: 'POST',
+            data: formData,
+            headers: {'X-Requested-With': 'XMLHttpRequest'},
+            success: function(data) {
+                // Giả sử server trả về HTML của phần comments-list mới
+                $('#comments-list').html($(data).find('#comments-list').html());
+                $form[0].reset();
+                $('#parent_id_input').val('');
+            },
+            error: function() {
+                alert('Có lỗi xảy ra khi gửi bình luận.');
+            }
+        });
+    });
+    </script>
 </body>
 </html>

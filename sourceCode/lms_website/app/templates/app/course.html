@@ -1,72 +1,231 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tech2 etc Tutorial - Courses</title>
-
+    <title>Courses - Techedu</title>
     <link rel="stylesheet" href="https://pro.fontawesome.com/releases/v5.10.0/css/all.css" />
-    <link rel="stylesheet" href="{% static 'css/style.css' %}">
-
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"
-        integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="{% static 'style.css' %}">
+    <script src="{% static 'js/script.js' %}"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <style>
+        .main-content-flex {
+            display: flex;
+            gap: 32px;
+            margin: 32px 0;
+        }
+        .category-sidebar {
+            min-width: 220px;
+            max-width: 350px;
+            width: 350px;
+            background: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 16px rgba(0,0,0,0.08);
+            padding: 24px 16px;
+            height: 800px;
+            overflow-y: auto;
+            background-color: #f9f9f9;
+        }
+        .category-sidebar h3 {
+            margin-top: 0;
+            font-size: 1.2rem;
+            color: #222;
+            margin-bottom: 18px;
+        }
+        .category-sidebar ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        .category-sidebar li {
+            margin-bottom: 12px;
+        }
+        .category-sidebar a {
+            color: #222;
+            text-decoration: none;
+            font-size: 13px;
+            font-weight: normal;
+            text-transform: lowercase;
+            transition: color 0.2s;
+        }
+        .category-sidebar a.selected,
+        .category-sidebar a:hover {
+            color: #FDC93B;
+            font-weight: normal;
+        }
+        .course-list {
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+        }
+        .course-row {
+            display: flex;
+            align-items: flex-start; /* Đẩy nội dung lên trên cùng */
+            background: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 16px rgba(0,0,0,0.08);
+            padding: 20px;
+            transition: box-shadow 0.2s;
+        }
+        .course-row:hover {
+            box-shadow: 0 4px 24px rgba(0,0,0,0.13);
+        }
+        .course-row img {
+            width: 300px;
+            height: 200px;
+            object-fit: cover;
+            border-radius: 6px;
+            margin-right: 32px;
+        }
+        .course-row-content {
+            flex: 1;
+            text-align: left;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
+            height: 200px;
+        }
+        .course-row-content h3 {
+            margin: 0 0 8px 0;
+        }
+        .course-row-content p {
+            margin: 0 0 8px 0;
+            color: #444;
+            display: -webkit-box;
+            -webkit-line-clamp: 4;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .course-row-content h3 a {
+            color: #222;
+            text-decoration: none;
+            transition: color 0.2s;
+        }
+        .course-row-content h3 a:hover {
+            color: #FDC93B;
+            text-decoration: underline;
+        }
+        .pagination {
+            display: flex;
+            justify-content: center;
+            margin-top: 24px;
+            gap: 8px;
+        }
+        .pagination a, .pagination span {
+            padding: 6px 12px;
+            border-radius: 4px;
+            background: #eee;
+            color: #222;
+            text-decoration: none;
+        }
+        .pagination .active {
+            background: #FDC93B;
+            color: #fff;
+            font-weight: bold;
+        }
+    </style>
 </head>
 <body>
-    <!-- Navigation -->
-    <nav>
-        <img src="{% static 'images/logo.svg' %}" alt="Logo" class="logo">
-        <div class="navigation">
-            <ul class="nav-links">
-                <li><a href="{% url 'home' %}">Home</a></li>
-                <li><a href="{% url 'about' %}">About</a></li>
-                <li><a href="{% url 'blog' %}">Blog</a></li>
-                <li><a class="active" href="{% url 'courses' %}">Courses</a></li>
-                <li><a href="{% url 'contact' %}">Contact</a></li>
-            </ul>
-        </div>
-    </nav>
+    {% include 'app/navigation.html' %}
 
-    <!-- Courses Section -->
-    <section class="courses">
-        <h2>Our Courses</h2>
-        <div class="course-grid">
-            {% for course in courses %}
-                <div class="course-card">
-                    <img src="{{ course.image.url|default:'/static/images/default_course.jpg' }}" alt="{{ course.title }}">
-                    <h3>{{ course.title }}</h3>
-                    <p>{{ course.description|truncatewords:20 }}</p>
-                    <a href="{% url 'course_detail' course.id %}" class="btn">Learn More</a>
-                </div>
-            {% empty %}
-                <p>No courses available at the moment.</p>
-            {% endfor %}
-        </div>
+    <!-- hero -->
+    <section id="about-home">
+        <h1>Course</h1>
+    </section>  
 
-        <!-- Pagination -->
-        {% if page_obj.has_other_pages %}
-            <div class="pagination">
-                {% if page_obj.has_previous %}
-                    <a href="?page={{ page_obj.previous_page_number }}"><i class="fas fa-chevron-left"></i></a>
-                {% endif %}
-                {% for num in page_obj.paginator.page_range %}
-                    {% if page_obj.number == num %}
-                        <span class="active">{{ num }}</span>
-                    {% else %}
-                        <a href="?page={{ num }}">{{ num }}</a>
-                    {% endif %}
+    <div class="main-content-flex">
+        <!-- Category Sidebar -->
+        <aside class="category-sidebar">
+            <h3>Categories</h3>
+            <ul>
+                <li>
+                    <a href="{% url 'courses' %}" class="{% if not request.GET.category %}selected{% endif %}">All</a>
+                </li>
+                {% for cat in categories %}
+                <li>
+                    <a href="?category={{ cat.id }}"{% if cat.id|stringformat:"s" == request.GET.category %} class="selected"{% endif %}>{{ cat.name }}</a>
+                </li>
                 {% endfor %}
-                {% if page_obj.has_next %}
-                    <a href="?page={{ page_obj.next_page_number }}"><i class="fas fa-chevron-right"></i></a>
-                {% endif %}
-            </div>
-        {% endif %}
-    </section>
+            </ul>
+        </aside>
 
-    <!-- Footer -->
-    <footer>
-        <p>&copy; 2025 Tech2 etc Tutorial. All rights reserved.</p>
-    </footer>
+        <!-- Courses Section -->
+        <section id="courses" style="flex:1;">
+            
+            <!-- Thêm dropdown ngay trên danh sách course -->
+            <div style="display: flex; justify-content: flex-end; align-items: center; margin-bottom: 18px;">
+                <form id="sortForm" method="get" style="display: flex; align-items: center; gap: 8px;">
+                    {% if request.GET.category %}
+                        <input type="hidden" name="category" value="{{ request.GET.category }}">
+                    {% endif %}
+                    <label for="sort" style="font-size: 14px; color: #444;">Sort:</label>
+                    <select name="sort" id="sort" style="padding: 6px 12px; border-radius: 4px; border: 1px solid #ccc;">
+                        <option value="newest" {% if request.GET.sort == "newest" or not request.GET.sort %}selected{% endif %}>Newest</option>
+                        <option value="oldest" {% if request.GET.sort == "oldest" %}selected{% endif %}>Oldest</option>
+                        <option value="az" {% if request.GET.sort == "az" %}selected{% endif %}>A → Z</option>
+                        <option value="za" {% if request.GET.sort == "za" %}selected{% endif %}>Z → A</option>
+                        <option value="enroll_desc" {% if request.GET.sort == "enroll_desc" %}selected{% endif %}>Decrease </option>
+                        <option value="enroll_asc" {% if request.GET.sort == "enroll_asc" %}selected{% endif %}>Số người đăng ký tăng dần</option>
+                    </select>
+                </form>
+            </div>
+            <script>
+                // Tự động submit form khi chọn sort
+                document.getElementById('sort').addEventListener('change', function() {
+                    document.getElementById('sortForm').submit();
+                });
+            </script>
+
+            <div class="course-list">
+                {% for course in page_obj %}
+                    <div class="course-row">
+                        {% if course.thumbnail %}
+                            <img src="{{ course.thumbnail.url }}" alt="{{ course.courseName }}">
+                        {% else %}
+                            <img src="/media/thumbnails/default-product-card.webp" alt="{{ course.courseName }}">
+                        {% endif %}
+                        <div class="course-row-content">
+                            <h3>
+                                <a href="{% url 'course_detail' course.courseID %}">
+                                    {{ course.courseName }}
+                                </a>
+                            </h3>
+                            <p>{{ course.description|truncatewords:20 }}</p>
+                            {% if course.category %}
+                                <p style="font-size: 0.95em; color: #888;">Category: {{ course.category.name }}</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                {% empty %}
+                    <p>No courses available at the moment.</p>
+                {% endfor %}
+            </div>
+
+            <!-- Pagination -->
+            {% if page_obj.has_other_pages %}
+                <div class="pagination">
+                    {% if page_obj.has_previous %}
+                        <a href="?page={{ page_obj.previous_page_number }}{% if request.GET.category %}&category={{ request.GET.category }}{% endif %}"><i class="fas fa-chevron-left"></i></a>
+                    {% endif %}
+                    {% for num in page_obj.paginator.page_range %}
+                        {% if page_obj.number == num %}
+                            <span class="active">{{ num }}</span>
+                        {% else %}
+                            <a href="?page={{ num }}{% if request.GET.category %}&category={{ request.GET.category }}{% endif %}">{{ num }}</a>
+                        {% endif %}
+                    {% endfor %}
+                    {% if page_obj.has_next %}
+                        <a href="?page={{ page_obj.next_page_number }}{% if request.GET.category %}&category={{ request.GET.category }}{% endif %}"><i class="fas fa-chevron-right"></i></a>
+                    {% endif %}
+                </div>
+            {% endif %}
+        </section>
+    </div>
+
+    {% include 'app/footer.html' %}
 
     <script>
         // Navigation Bar Toggle (if needed for mobile)

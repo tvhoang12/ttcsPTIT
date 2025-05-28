@@ -1,0 +1,261 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <title>{{ course.courseName }} - {{ lesson.question_list_title|default:"Bài trắc nghiệm" }}</title>
+    <link rel="stylesheet" href="{% static 'style.css' %}">
+    <link rel="stylesheet" href="https://pro.fontawesome.com/releases/v5.10.0/css/all.css"/>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background: #f7f7f7;
+        }
+        #question-section {
+            display: flex;
+            min-height: 100vh;
+            background: #f7f7f7;
+        }
+        .question-sidebar {
+            flex: 0 0 340px;
+            min-width: 250px;
+            max-width: 400px;
+            background: #fff;
+            box-shadow: -2px 0 8px rgba(0,0,0,0.04);
+            padding: 32px 24px 24px 24px;
+            z-index: 3;
+            transition: transform 0.3s cubic-bezier(.4,0,.2,1), width 0.3s;
+        }
+        .question-sidebar.hide {
+            transform: translateX(-100%);
+            width: 0 !important;
+            min-width: 0 !important;
+            padding: 0 !important;
+            overflow: hidden;
+        }
+        .question-main {
+            flex: 1 1 0;
+            min-width: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: stretch;
+            justify-content: flex-start;
+            background: #f7f7f7;
+            transition: margin-left 0.3s cubic-bezier(.4,0,.2,1), width 0.3s;
+            position: relative;
+            z-index: 1;
+        }
+        .question-sidebar.hide + .question-main {
+            width: 100vw;
+        }
+        .question-header {
+            display: flex;
+            align-items: center;
+            background: #222;
+            color: #fff;
+            padding: 16px 24px;
+        }
+        .toggle-sidebar-btn {
+            background: none;
+            border: none;
+            color: #fff;
+            font-size: 1.5em;
+            margin-right: 18px;
+            cursor: pointer;
+        }
+        .question-list-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin: 32px 0 24px 0;
+            color: #222;
+            padding-left: 32px;
+        }
+        .question-form-wrapper {
+            max-width: 1000px; /* mở rộng ra 1000px */
+            margin: 0 auto;
+            padding: 0 16px 32px 16px;
+        }
+        .question-block {
+            background: #fff;
+            border-radius: 8px;
+            margin-bottom: 24px;
+            box-shadow: 0 2px 8px rgba(21,21,51,0.04);
+            padding: 24px;
+            max-width: 1000px; /* mở rộng block ra 1000px */
+            margin-left: auto;
+            margin-right: auto;
+        }
+        .question-text {
+            font-size: 1.1rem;
+            font-weight: 500;
+            margin-bottom: 16px;
+        }
+        .answers label {
+            display: block;
+            margin-bottom: 10px;
+            cursor: pointer;
+            font-weight: 400;
+            padding-left: 8px;
+        }
+        .answers input[type="radio"] {
+            margin-right: 8px;
+        }
+        .submit-btn {
+            background: #2d5be3;
+            color: #fff;
+            border: none;
+            border-radius: 6px;
+            padding: 12px 32px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 16px;
+            transition: background 0.2s;
+        }
+        .submit-btn:hover {
+            background: #1b3c8c;
+        }
+        .result-box {
+            margin-top: 24px;
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: #2d5be3;
+        }
+        /* Overlay for sidebar */
+        .sidebar-overlay {
+            display: none;
+            position: fixed;
+            z-index: 1001;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(21,21,51,0.7);
+            transition: opacity 0.2s;
+        }
+        .sidebar-overlay.active {
+            display: block;
+        }
+        @media (max-width: 900px) {
+            .question-sidebar {
+                display: none;
+            }
+            .question-main {
+                margin-left: 0 !important;
+                width: 100vw !important;
+            }
+        }
+    </style>
+</head>
+<body>
+    <section id="question-section">
+        <!-- Sidebar -->
+        <aside class="question-sidebar hide" id="questionSidebar">
+            <h3 style="margin-top:0;">Nội dung khóa học</h3>
+            <ul style="list-style: none; padding: 0;">
+                {% for v in course.lessons.all %}
+                    <li style="margin-bottom: 12px;">
+                        {% if v.pk == lesson.pk %}
+                            <strong><i class="fas fa-question-circle"></i> {{ v.title }}</strong>
+                        {% else %}
+                            {% if v.lesson_type == "theory" %}
+                                <a href="{% url 'lesson' course.courseID v.pk %}">
+                                    <i class="fas fa-play"></i> {{ v.title }}
+                                </a>
+                            {% else %}
+                                <a href="{% url 'question' course.courseID v.pk %}">
+                                    <i class="fas fa-question"></i> {{ v.title }}
+                                </a>
+                            {% endif %}
+                        {% endif %}
+                    </li>
+                {% empty %}
+                    <li>Chưa có bài học nào cho khóa học này.</li>
+                {% endfor %}
+            </ul>
+        </aside>
+
+        <!-- Overlay -->
+        <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+        <!-- Main Question Area -->
+        <div class="question-main" id="questionMain">
+            <div class="question-header">
+                <button class="toggle-sidebar-btn" id="toggleSidebarBtn" title="Ẩn/hiện danh sách bài học">
+                    <i class="fa fa-bars"></i>
+                </button>
+                <span style="font-size:1.1em;font-weight:500;margin-left:8px;">{{ lesson.title }}</span>
+            </div>
+            <div class="question-list-title">
+                {{ lesson.question_list_title|default:"Bài trắc nghiệm" }}
+            </div>
+            <div class="question-form-wrapper">
+                <form id="questionForm" autocomplete="off">
+                    {% for q in lesson.questions.all %}
+                    <div class="question-block" data-question="{{ forloop.counter }}">
+                        <div class="question-text">
+                            Câu {{ forloop.counter }}: {{ q.question_text }}
+                        </div>
+                        <div class="answers">
+                            <label>
+                                <input type="radio" name="q{{ forloop.counter }}" value="A">
+                                {{ q.answer_a }}
+                            </label>
+                            <label>
+                                <input type="radio" name="q{{ forloop.counter }}" value="B">
+                                {{ q.answer_b }}
+                            </label>
+                            <label>
+                                <input type="radio" name="q{{ forloop.counter }}" value="C">
+                                {{ q.answer_c }}
+                            </label>
+                            <label>
+                                <input type="radio" name="q{{ forloop.counter }}" value="D">
+                                {{ q.answer_d }}
+                            </label>
+                        </div>
+                    </div>
+                    {% endfor %}
+                    <button type="submit" class="submit-btn">Nộp bài</button>
+                </form>
+                <div class="result-box" id="resultBox" style="display:none;"></div>
+            </div>
+        </div>
+    </section>
+    <script>
+        // Sidebar logic
+        const sidebar = document.getElementById('questionSidebar');
+        const overlay = document.getElementById('sidebarOverlay');
+        const openBtn = document.getElementById('toggleSidebarBtn');
+        openBtn.addEventListener('click', function() {
+            sidebar.classList.remove('hide');
+            overlay.classList.add('active');
+        });
+        overlay.addEventListener('click', function() {
+            sidebar.classList.add('hide');
+            overlay.classList.remove('active');
+        });
+        // Hide sidebar by default on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            sidebar.classList.add('hide');
+            overlay.classList.remove('active');
+        });
+
+        // Quiz logic
+        const form = document.getElementById('questionForm');
+        const resultBox = document.getElementById('resultBox');
+        form.addEventListener('submit', function(e) {
+            e.preventDefault();
+            let correct = 0;
+            let total = {{ lesson.questions.count }};
+            {% for q in lesson.questions.all %}
+                let ans = form.querySelector('input[name="q{{ forloop.counter }}"]:checked');
+                if(ans && ans.value === "{{ q.correct_answer }}") {
+                    correct += 1;
+                }
+            {% endfor %}
+            resultBox.style.display = "block";
+            resultBox.innerHTML = `Bạn trả lời đúng <b>${correct}</b> trên tổng số <b>${total}</b> câu hỏi.`;
+            window.scrollTo({top: resultBox.offsetTop - 40, behavior: "smooth"});
+        });
+    </script>
+</body>
+</html>

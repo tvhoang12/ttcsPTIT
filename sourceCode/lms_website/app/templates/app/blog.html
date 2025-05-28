@@ -1,163 +1,179 @@
 {% load static %}
-
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tech2 etc Tutorial</title>
-
-    <!-- Tải FontAwesome từ Django static -->
-    <link rel="stylesheet" href="{% static 'https://pro.fontawesome.com/releases/v5.10.0/css/all.css' %}" />
-
-    <!-- Sử dụng tệp CSS tĩnh -->
+    <title>Blog - Techedu</title>
+    <link rel="stylesheet" href="https://pro.fontawesome.com/releases/v5.10.0/css/all.css" />
     <link rel="stylesheet" href="{% static 'style.css' %}">
-
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js" integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
+    <script src="{% static 'js/script.js' %}"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 </head>
-
 <body>
-
-    <!-- Navigation -->
-    <nav>
-        <img src="{% static 'images/logo.svg' %}" alt="Logo" class="logo">
-        <div class="navigation">
-            <ul class="nav-links">
-                <li><a href="{% url 'home' %}">Home</a></li>
-                <li><a href="{% url 'about' %}">About</a></li>
-                <li><a class="active" href="{% url 'blog' %}">Blog</a></li>
-                <li><a href="{% url 'courses' %}">Courses</a></li>
-                <li><a href="{% url 'contact' %}">Contact</a></li>
-            </ul>
-        </div>
-    </nav>
+    {% include 'app/navigation.html' %}
 
     <!-- hero -->
     <section id="about-home">
         <h1>Blog</h1>
-    </section>
+    </section>  
 
-    <section id="blog-container">
-        <!-- Blog Section -->
-        <section id="blog">
-            <h1>Blog Posts</h1>
-            <div class="blog-container">
-                {% for post in posts %}
-                <div class="blog-box">
-                    <img src="{{ post.thumbnail.url }}" alt="{{ post.title }}">
-                    <ul class="post-meta" style="list-style-type: none; padding-left: 0px;">
-                        <li><i class="fa fa-tag"></i><a>{{ post.category }}</a></li>
-                        <li><i class="fa fa-comment"></i><a>{{ post.comments.all.count }} Comments</a></li>
-                        <li><i class="fa fa-user"></i><a>Post By {{ post.author.first_name }}</a></li>
-                        <li><i class="fa fa-clock-o"></i><a>{{ post.created_at|date:"d F" }}</a></li>
-                    </ul>
-                    <h2><a href="{% url 'post_detail' post.id %}" style="text-decoration:none; color:black">{{ post.title }}</a></h2>
-                    <p>{{ post.content|truncatechars:250|safe }}...</p>
-                    <a class="read-more-btn" href="{% url 'post_detail' post.id %}">Read More</a>
+    <!-- Blog Section -->
+    <section id="courses">
+        <div style="display: flex; gap: 32px;">
+            <!-- Danh sách bài viết dạng thanh ngang -->
+            <div style="flex: 2;">
+                <a href="{% url 'new_blog' %}" class="btn" style="margin-bottom: 24px; display: inline-block;">Add new</a>
+                <div class="course-list">
+                    {% for blog in blogs %}
+                        <div class="course-row">
+                            <!-- Avatar người dùng -->
+                            {% if blog.author.avatar %}
+                                <img src="{{ blog.author.avatar.url }}" alt="{{ blog.author.get_full_name|default:blog.author.username }}" style="width:80px;height:80px;object-fit:cover;border-radius:50%;margin-right:32px;">
+                            {% else %}
+                                <img src="{% static 'images/avatar-default.png' %}" alt="avatar" style="width:80px;height:80px;object-fit:cover;border-radius:50%;margin-right:32px;">
+                            {% endif %}
+                            <div class="course-row-content">
+                                <h3>
+                                    <a href="{% url 'blog_detail' blog.id %}">
+                                        {{ blog.title }}
+                                    </a>
+                                </h3>
+                                <div class="blog-content-preview">{{ blog.content|truncatewords_html:20|safe }}</div>
+                                <p style="font-size: 0.95em; color: #888;">
+                                    <i class="fa fa-user"></i> {{ blog.author.get_full_name|default:blog.author.username }} &nbsp;
+                                    <i class="fa fa-clock"></i> {{ blog.created_at|date:"d/m/Y" }}
+                                </p>
+                            </div>
+                        </div>
+                    {% empty %}
+                        <p>No blog blogs available at the moment.</p>
+                    {% endfor %}
                 </div>
-                
-                {% empty %}
-                <p>No posts available.</p>
-                {% endfor %}
             </div>
-        </section>
-        
-    </section>
-
-    <!-- features -->
-    <section id="features">
-        <h1>Features</h1>
-        <p>Discover the features that make our platform unique.</p>
-        <div class="fea-base">
-            <div class="fea-box">
-                <i class="fas fa-laptop-code"></i>
-                <h3>Interactive Courses</h3>
-                <p>Engaging and interactive courses to enhance your learning experience.</p>
-            </div>
-            <div class="fea-box">
-                <i class="fas fa-users"></i>
-                <h3>Community Support</h3>
-                <p>Join a community of learners and get support from peers and instructors.</p>
-            </div>
-            <div class="fea-box">
-                <i class="fas fa-certificate"></i>
-                <h3>Certification</h3>
-                <p>Earn certificates upon course completion to showcase your skills.</p>
-            </div>
-        </div>
-    </section>
-
-    <!-- trusted by -->
-    <section id="trust">
-        <h1>Trusted by</h1>
-        <p>Join thousands of learners who trust us for their education.</p>
-        <div class="trust-img">
-            <img src="{% static 'images/trust (1).png' %}" alt="Trust Image 1">
-            <img src="{% static 'images/trust (2).png' %}" alt="Trust Image 2">
-            <img src="{% static 'images/trust (3).png' %}" alt="Trust Image 3">
-            <img src="{% static 'images/trust (4).png' %}" alt="Trust Image 4">
-            <img src="{% static 'images/trust (5).png' %}" alt="Trust Image 5">
-            <img src="{% static 'images/trust (6).png' %}" alt="Trust Image 6">
+            <!-- Cột phải: Bài viết mới nhất & nổi bật -->
+            <aside style="flex: 1; min-width: 260px;">
+                <div style="background: #fff; border-radius: 8px; box-shadow: 0 2px 16px rgba(0,0,0,0.08); padding: 20px; margin-bottom: 24px;">
+                    <h3 style="margin-top:0; font-size:1.1rem; color:#222;">New blogs</h3>
+                    <ul style="list-style:none; padding:0; margin:0;">
+                        {% for blog in latest_blogs %}
+                            <li style="margin-bottom: 14px;">
+                                <a href="{% url 'blog_detail' blog.id %}" style="color:#222; text-decoration:none;">
+                                    {{ blog.title|truncatechars:40 }}
+                                </a>
+                                <br>
+                                <span style="font-size:12px; color:#888;"><i class="fa fa-clock"></i> {{ blog.created_at|date:"d/m/Y" }}</span>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                </div>
+                <div style="background: #fff; border-radius: 8px; box-shadow: 0 2px 16px rgba(0,0,0,0.08); padding: 20px;">
+                    <h3 style="margin-top:0; font-size:1.1rem; color:#222;">Popular blogs</h3>
+                    <ul style="list-style:none; padding:0; margin:0;">
+                        {% for blog in popular_blogs %}
+                            <li style="margin-bottom: 14px;">
+                                <a href="{% url 'blog_detail' blog.id %}" style="color:#222; text-decoration:none;">
+                                    {{ blog.title|truncatechars:40 }}
+                                </a>
+                                <br>
+                                <span style="font-size:12px; color:#888;">
+                                    <i class="fa fa-eye"></i> 
+                                    {% if blog.views %}{{ blog.views }}{% else %}0{% endif %} lượt xem
+                                </span>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </aside>
         </div>
     </section>
 
-    <!-- Footer -->
-    <footer>
-        <div class="footer-col">
-            <h3>Top Products</h3>
-            <ul>
-                <li>Manage Reputation</li>
-                <li>Power Tools</li>
-                <li>Marketing</li>
-                <li>Analytics</li>
-                <li>Commerce</li>
-            </ul>
-        </div>
-        <div class="footer-col">
-            <h3>Quick Links</h3>
-        </div>
-        <div class="footer-col">
-            <h3>Features</h3>
-            <ul>
-                <li>Business Marketing</li>
-                <li>User Analytics</li>
-                <li>Live Chat</li>
-                <li>Unlimited Support</li>
-                <li>API Access</li>
-            </ul>
-        </div>
-        <div class="footer-col">
-            <h3>Resources</h3>
-            <ul>
-                <li>IOS & Android</li>
-                <li>Watch a Demo</li>
-                <li>Customers</li>
-                <li>API</li>
-                <li>Site Map</li>
-            </ul>
-        </div>
-        <div class="footer-col">
-            <h3>Newsletter</h3>
-            <p>You can trust us. We only send promo offers, </p>
-            <div class="subscribe">
-                <input type="text" placeholder="Email address" name="" id="">
-                <a href="#" class="btn">Subscribe</a>
-            </div>
-        </div>
+    {% include 'app/footer.html' %}
 
-        <div class="copyright">
-            <p>Copyright &copy; 2025 Hghg. All rights reserved.</p>
-            <div class="pro-links">
-                <i class="fab fa-facebook-f"></i>
-                <i class="fab fa-twitter"></i>
-                <i class="fab fa-linkedin-in"></i>
-                <i class="fab fa-instagram"></i>
-            </div>
-        </div>
-    </footer>
+    <script>
+        $(document).ready(function() {
+            $('.fa-bars').click(function() {
+                $('.nav-links').slideToggle();
+            });
+        });
 
+        $('#comment-form').on('submit', function(e) {
+            e.preventDefault();
+            var $form = $(this);
+            var formData = $form.serialize();
+            $.ajax({
+                url: window.location.href,
+                type: 'POST',
+                data: formData,
+                headers: {'X-Requested-With': 'XMLHttpRequest'},
+                success: function(data) {
+                    // Cập nhật lại phần comments-list mà không load lại trang
+                    $('#comments-list').html($(data.comments_html).html());
+                    $form[0].reset();
+                    $('#parent_id_input').val('');
+                },
+                error: function() {
+                    alert('Có lỗi xảy ra khi gửi bình luận.');
+                }
+            });
+        });
+
+        // Khi nhấn nút trả lời, set parent_id cho form
+        $(document).on('click', '.reply-btn', function(e) {
+            e.preventDefault();
+            var parentId = $(this).data('comment-id');
+            $('#parent_id_input').val(parentId);
+            $('.comment-input').focus();
+        });
+    </script>
 </body>
-
 </html>
+
+<style>
+    .course-list {
+        display: flex;
+        flex-direction: column;
+        gap: 24px;
+    }
+    .course-row {
+        display: flex;
+        align-items: flex-start;
+        background: #fff;
+        border-radius: 8px;
+        box-shadow: 0 2px 16px rgba(0,0,0,0.08);
+        padding: 20px;
+        transition: box-shadow 0.2s;
+    }
+    .course-row:hover {
+        box-shadow: 0 4px 24px rgba(0,0,0,0.13);
+    }
+    .course-row-content {
+        flex: 1;
+        text-align: left;
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-start;
+    }
+    .course-row-content h3 {
+        margin: 0 0 8px 0;
+    }
+    .course-row-content h3 a {
+        color: #222;
+        text-decoration: none;
+        transition: color 0.2s;
+    }
+    .course-row-content h3 a:hover {
+        color: #FDC93B;
+        text-decoration: underline;
+    }
+    .course-row-content p {
+        margin: 0 0 8px 0;
+        color: #444;
+        display: -webkit-box;
+        -webkit-line-clamp: 4;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+</style>

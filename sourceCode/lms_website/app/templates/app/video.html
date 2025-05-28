@@ -1,0 +1,165 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <title>{{ course.courseName }}</title>
+    <link rel="stylesheet" href="{% static 'style.css' %}">
+    <link rel="stylesheet" href="https://pro.fontawesome.com/releases/v5.10.0/css/all.css"/>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background: #f7f7f7;
+        }
+        #lesson-section {
+            display: flex;
+            min-height: 100vh;
+            background: #f7f7f7;
+        }
+        .lesson-sidebar {
+            flex: 0 0 340px;
+            min-width: 250px;
+            max-width: 400px;
+            background: #fff;
+            box-shadow: -2px 0 8px rgba(0,0,0,0.04);
+            padding: 32px 24px 24px 24px;
+            z-index: 3;
+            transition: transform 0.3s cubic-bezier(.4,0,.2,1), width 0.3s;
+        }
+        .lesson-sidebar.hide {
+            transform: translateX(-100%);
+            width: 0 !important;
+            min-width: 0 !important;
+            padding: 0 !important;
+            overflow: hidden;
+        }
+        .lesson-main {
+            flex: 1 1 0;
+            min-width: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: stretch;
+            justify-content: flex-start;
+            background: #000;
+            transition: margin-left 0.3s cubic-bezier(.4,0,.2,1), width 0.3s;
+        }
+        .lesson-sidebar.hide + .lesson-main {
+            width: 100vw;
+        }
+        .lesson-header {
+            display: flex;
+            align-items: center;
+            background: #222;
+            color: #fff;
+            padding: 16px 24px;
+        }
+        .toggle-sidebar-btn {
+            background: none;
+            border: none;
+            color: #fff;
+            font-size: 1.5em;
+            margin-right: 18px;
+            cursor: pointer;
+        }
+        .lesson-player-wrapper {
+            flex: 1 1 0;
+            display: flex;
+            align-items: stretch;
+            justify-content: center;
+            background: #000;
+            padding: 10px;
+        }
+        .youtube-embed-responsive {
+            position: relative;
+            width: 100%;
+            max-width: 100%;
+            aspect-ratio: 16/9;
+            background: #000;
+            border-radius: 8px;
+            overflow: hidden;
+            margin: 0;
+            flex: 1 1 0;
+            display: flex;
+        }
+        .youtube-embed-responsive iframe {
+            position: absolute;
+            top: 0; left: 0;
+            width: 100%;
+            height: 100%;
+            border: 0;
+            background: #000;
+            display: block;
+        }
+        .lesson-description {
+            color: #eee;
+            background: #111;
+            padding: 18px 32px;
+            margin: 0;
+            font-size: 1.1em;
+        }
+        @media (max-width: 900px) {
+            .lesson-sidebar {
+                display: none;
+            }
+            .lesson-main {
+                margin-left: 0 !important;
+                width: 100vw !important;
+            }
+        }
+    </style>
+</head>
+<body>
+    {% include 'app/navigation.html' %}
+
+    <section id="lesson-section">
+        <!-- Sidebar -->
+        <aside class="lesson-sidebar" id="lessonSidebar">
+            <h3 style="margin-top:0;">Nội dung khóa học</h3>
+            <ul style="list-style: none; padding: 0;">
+                {% for v in course.lessons.all %}
+                    <li style="margin-bottom: 12px;">
+                        {% if v.pk == lesson.pk %}
+                            <strong><i class="fas fa-play-circle"></i> {{ v.title }}</strong>
+                        {% else %}
+                            <a href="{% url 'lesson' course.courseID v.pk %}">
+                                <i class="fas fa-play"></i> {{ v.title }}
+                            </a>
+                        {% endif %}
+                    </li>
+                {% empty %}
+                    <li>Chưa có lesson nào cho khóa học này.</li>
+                {% endfor %}
+            </ul>
+        </aside>
+
+        <!-- Main Video Area -->
+        <div class="lesson-main" id="lessonMain">
+            <div class="lesson-header">
+                <button class="toggle-sidebar-btn" id="toggleSidebarBtn" title="Ẩn/hiện danh sách bài học">
+                    <i class="fa fa-bars"></i>
+                </button>
+            </div>
+            <div class="lesson-player-wrapper">
+                <div class="youtube-embed-responsive">
+                    {{ lesson.embed_code|safe }}
+                </div>
+            </div>
+            <p class="lesson-description">{{ lesson.description }}</p>
+        </div>
+    </section>
+
+    <script>
+        // Toggle sidebar
+        const sidebar = document.getElementById('lessonSidebar');
+        const main = document.getElementById('lessonMain');
+        const btn = document.getElementById('toggleSidebarBtn');
+        btn.addEventListener('click', function() {
+            sidebar.classList.toggle('hide');
+            // Force layout reflow to ensure lesson resizes
+            main.style.width = sidebar.classList.contains('hide') ? '100vw' : '';
+            window.dispatchEvent(new Event('resize'));
+        });
+    </script>
+</body>
+</html>

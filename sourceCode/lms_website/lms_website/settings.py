@@ -46,6 +46,9 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'app',
+    'ckeditor',
+    'ckeditor_uploader',
+    'channels',
 ]
 
 MIDDLEWARE = [
@@ -77,6 +80,7 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'lms_website.wsgi.application'
+ASGI_APPLICATION = 'lms_website.asgi.application'
 
 
 # Database
@@ -88,6 +92,8 @@ DATABASES = {
         'NAME': BASE_DIR / 'db.sqlite3',
     }
 }
+
+AUTH_USER_MODEL = 'app.User'
 
 
 # Password validation
@@ -124,11 +130,51 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.1/howto/static-files/
 
-STATIC_URL = 'static/'
+STATIC_URL = '/static/'
+STATIC_ROOT = BASE_DIR / 'staticfiles'
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-AUTH_USER_MODEL = 'app.Users'
+CKEDITOR_UPLOAD_PATH = "uploads/"
+MEDIA_URL = '/media/'
+MEDIA_ROOT = BASE_DIR / 'media'
+
+CKEDITOR_CONFIGS = {
+    'default': {
+        'height': 500,
+        'width': '85vw',
+        'toolbar': 'Custom',
+        'toolbar_Custom': [
+            ['Font', 'FontSize', 'Bold', 'Italic', 'Underline', 'TextColor', 'BGColor', '-', 'NumberedList', 'BulletedList', '-', 'Link', 'Unlink', 'Image', 'Table', 'RemoveFormat', 'Source'],
+            ['Mathjax', 'SpecialChar', 'Superscript', 'Subscript'],
+        ],
+        'extraPlugins': 'mathjax',
+        'mathJaxLib': 'https://cdn.jsdelivr.net/npm/mathjax@2/MathJax.js?config=TeX-AMS_HTML',
+        'font_names': 'Montserrat/Montserrat, Arial, Helvetica, sans-serif;Arial/Arial, Helvetica, sans-serif;Times New Roman/Times New Roman, Times, serif;',
+        'font_defaultLabel': 'Montserrat',
+        'contentsCss': [
+            'https://fonts.googleapis.com/css?family=Montserrat:400,700&display=swap',
+        ],
+        'bodyClass': 'ckeditor-body',
+    },
+}
+
+CHANNEL_LAYERS = {
+    "default": {
+        "BACKEND": "channels_redis.core.RedisChannelLayer",
+        "CONFIG": {
+            "hosts": [("127.0.0.1", 6379)],  # Địa chỉ Redis server
+        },
+    },
+}
+
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = 'bustren12@gmail.com'         # Thay bằng email của bạn
+EMAIL_HOST_PASSWORD = 'qkaw zawi vpev nxok'        # Thay bằng app password (không phải mật khẩu Gmail thông thường)
+DEFAULT_FROM_EMAIL = EMAIL_HOST_USER

@@ -1,0 +1,439 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Create New Course - Techedu</title>
+    <link rel="stylesheet" href="{% static 'style.css' %}">
+    <link rel="stylesheet" href="https://pro.fontawesome.com/releases/v5.10.0/css/all.css" />
+    <style>
+        body {
+            background: rgb(21,21,51);
+        }
+        .register-container, .course-create-container {
+            background: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 16px rgba(0,0,0,0.08);
+            padding: 32px 40px;
+            max-width: 80vw;
+            width: 80vw;
+            margin: 40px auto;
+        }
+        .course-create-container h2 {
+            text-align: center;
+            margin-bottom: 24px;
+        }
+        .course-create-container form label {
+            font-weight: 500;
+        }
+        .course-create-container form input,
+        .course-create-container form select,
+        .course-create-container form textarea {
+            width: 100%;
+            padding: 8px 12px;
+            margin-bottom: 18px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 1rem;
+        }
+        .course-create-container .btn {
+            width: 100%;
+            background: #FDC93B;
+            color: #fff;
+            font-weight: bold;
+            border: 2px solid #FDC93B;
+            padding: 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background 0.2s, color 0.2s;
+            box-sizing: border-box;
+        }
+        .course-create-container .btn:hover {
+            background: #fff;
+            color: #FDC93B;
+            border-color: #FDC93B;
+        }
+        .btn-add-chapter,
+        .btn-add-lesson,
+        .btn-delete-chapter,
+        .btn-delete-lesson,
+        .btn-add-question {
+            border: 2px solid;
+            border-radius: 4px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background 0.2s, color 0.2s;
+            box-sizing: border-box;
+            padding: 8px 18px;
+            margin: 20px 0 0 0;
+        }
+        .btn-add-chapter {
+            background: rgb(21,21,52);
+            color: #fff;
+            border-color: rgb(21,21,52);
+        }
+        .btn-add-lesson {
+            background: #6ec1e4;
+            color: #fff;
+            border-color: #6ec1e4;
+        }
+        .btn-delete-chapter,
+        .btn-delete-lesson {
+            background: #dc3545;
+            color: #fff;
+            border-color: #dc3545;
+        }
+        .btn-add-question {
+            background: #7be495;
+            color: #fff;
+            border-color: #7be495;
+        }
+        .btn-add-chapter:hover {
+            background: #fff;
+            color: rgb(21,21,52);
+            border-color: rgb(21,21,52);
+        }
+        .btn-add-lesson:hover {
+            background: #fff;
+            color: #6ec1e4;
+            border-color: #6ec1e4;
+        }
+        .btn-delete-chapter:hover,
+        .btn-delete-lesson:hover {
+            background: #fff;
+            color: #dc3545;
+            border-color: #dc3545;
+        }
+        .btn-add-question:hover {
+            background: #fff;
+            color: #7be495;
+            border-color: #7be495;
+        }
+        #category-suggestions {
+            background: #fff;
+            border: 1px solid #ddd;
+            max-height: 180px;
+            overflow-y: auto;
+            position: absolute;
+            z-index: 10;
+            width: 100%;
+        }
+        .category-suggestion-item:hover {
+            background: #f0f0f0;
+        }
+        .category-suggestion-item.active {
+            background: #FDC93B;
+            color: #fff;
+        }
+    </style>
+</head>
+<body>
+    {% include 'app/navigation.html' %}
+
+    <section id="about-home">
+        <h1>Create New Course</h1>
+    </section>
+
+    <div class="course-create-container">
+        <h2>Create New Course</h2>
+        <form method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            <!-- Part 1: Basic Information -->
+            <h2>Basic Information</h2>
+            <label>Course Name:</label>
+            <input type="text" name="courseName" required>
+            <label>Thumbnail:</label>
+            <input type="file" name="thumbnail">
+            <label>Description:</label>
+            <textarea name="description"></textarea>
+            <label>Price:</label>
+            <input type="number" name="price" step="0.01" required>
+            <label>Duration:</label>
+            <input type="text" name="duration">
+            <label>Level:</label>
+            <select name="level">
+                <option value="beginner">Beginner</option>
+                <option value="intermediate">Intermediate</option>
+                <option value="advanced">Advanced</option>
+            </select>
+            <label>Language:</label>
+            <input type="text" name="language">
+            <label>Categories:</label>
+            <div id="category-list" style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:8px;"></div>
+            <input type="text" id="category-input" autocomplete="off" placeholder="Type to search or add...">
+            <div id="category-suggestions" style="position:relative;"></div>
+            <!-- Ẩn các input name="categories" để submit về server -->
+            <hr>
+
+            <!-- Part 2: Detailed Information -->
+            <h2>Detailed Information</h2>
+            <div id="chapters"></div>
+            <button type="button" class="btn-add-chapter" onclick="addChapter()">+ Add Chapter</button>
+            <br><br>
+            <button type="submit" class="btn">Create Course</button>
+        </form>
+    </div>
+
+    {% include 'app/footer.html' %}
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+    let selectedCategories = [];
+
+    $('#category-input').on('input', function() {
+        var query = $(this).val();
+        if (query.length === 0) {
+            $('#category-suggestions').empty();
+            return;
+        }
+        $.ajax({
+            url: "{% url 'category_search_ajax' %}",
+            data: { q: query },
+            success: function(data) {
+                let html = '';
+                data.results.forEach(function(cat) {
+                    html += `<div class="category-suggestion-item" data-id="${cat.id}" style="padding:4px 8px;cursor:pointer;">${cat.name}</div>`;
+                });
+                $('#category-suggestions').html(html);
+            }
+        });
+    });
+
+    // Chọn từ gợi ý
+    $(document).on('click', '.category-suggestion-item', function() {
+        let id = $(this).data('id');
+        let name = $(this).text();
+        addCategoryTag(id, name);
+        $('#category-input').val('');
+        $('#category-suggestions').empty();
+    });
+
+    // Thêm bằng nút +
+    $('#add-category-btn').on('click', function() {
+        let name = $('#category-input').val().trim();
+        if (!name) return;
+        // Nếu muốn chỉ cho phép chọn từ gợi ý, bỏ đoạn dưới
+        addCategoryTag(null, name); // null id nếu là category mới
+        $('#category-input').val('');
+        $('#category-suggestions').empty();
+    });
+
+    function addCategoryTag(id, name) {
+        if (selectedCategories.some(cat => cat.name === name)) return;
+        selectedCategories.push({id, name});
+        let tag = $(`<span class="category-tag" style="background:#eee;padding:4px 8px;border-radius:12px;margin-right:6px;display:inline-flex;align-items:center;">
+            ${name}
+            <button type="button" class="remove-category" style="margin-left:4px;background:none;border:none;color:#dc3545;font-weight:bold;cursor:pointer;font-size:20px;line-height:1;">&times;</button>
+            <input type="hidden" name="categories" value="${id ? id : name}">
+        </span>`);
+        tag.find('.remove-category').on('click', function() {
+            tag.remove();
+            selectedCategories = selectedCategories.filter(cat => cat.name !== name);
+        });
+        $('#category-list').append(tag);
+    }
+
+    let chapterCount = 0;
+    function addChapter() {
+        chapterCount++;
+        const chapterDiv = document.createElement('div');
+        chapterDiv.className = 'chapter-block';
+        chapterDiv.innerHTML = `
+            <h3>Chapter ${chapterCount}</h3>
+            <input type="text" name="chapter_title_${chapterCount}" placeholder="Chapter Name" required>
+            <div class="lessons" id="lessons_${chapterCount}"></div>
+            <button type="button" class="btn-add-lesson" onclick="addLesson()">+ Add Lesson</button>
+            <button type="button" class="btn-delete-chapter" onclick="deleteChapter(this, ${chapterCount})"">- Delete Chapter</button>
+            <hr>
+        `;
+        document.getElementById('chapters').appendChild(chapterDiv);
+    }
+
+    function addLesson(chapterNum) {
+        const lessonsDiv = document.getElementById(`lessons_${chapterNum}`);
+        const lessonCount = lessonsDiv.children.length + 1;
+        const lessonDiv = document.createElement('div');
+        lessonDiv.className = 'lesson-block';
+        lessonDiv.innerHTML = `
+            <div class="lesson-header" style="display:flex;align-items:center;gap:8px;">
+                <h4 style="margin:0;">Lesson ${lessonCount}</h4>
+                <button type="button" class="btn-delete-lesson" onclick="deleteLesson(this, ${chapterNum}, ${lessonCount})" style="background:#dc3545;color:#fff;border:none;border-radius:4px;padding:2px 8px;cursor:pointer;">Delete Lesson</button>
+            </div>
+            <label>Lesson Type:</label>
+            <select name="lesson_type_${chapterNum}_${lessonCount}" onchange="toggleLessonType(this, ${chapterNum}, ${lessonCount})">
+                <option value="theory">Theory</option>
+                <option value="question">Question</option>
+            </select>
+            <div class="lesson-content" id="lesson_content_${chapterNum}_${lessonCount}">
+                <!-- Default is theory -->
+                <input type="text" name="lesson_title_${chapterNum}_${lessonCount}" placeholder="Lesson Name" required>
+                <input type="text" name="youtube_url_${chapterNum}_${lessonCount}" placeholder="YouTube Video Link">
+            </div>
+            <hr>
+        `;
+        lessonsDiv.appendChild(lessonDiv);
+    }
+
+    function toggleLessonType(select, chapterNum, lessonNum) {
+        const contentDiv = document.getElementById(`lesson_content_${chapterNum}_${lessonNum}`);
+        if (select.value === 'theory') {
+            contentDiv.innerHTML = `
+                <input type="text" name="lesson_title_${chapterNum}_${lessonNum}" placeholder="Lesson Name" required>
+                <input type="text" name="youtube_url_${chapterNum}_${lessonNum}" placeholder="YouTube Video Link">
+            `;
+        } else {
+            contentDiv.innerHTML = `
+                <input type="text" name="question_list_title_${chapterNum}_${lessonNum}" placeholder="Question List Name" required>
+                <div class="questions" id="questions_${chapterNum}_${lessonNum}"></div>
+                <button type="button" class="btn-add-question" onclick="addQuestion(${chapterNum},${lessonNum})">+ Add Question</button>
+            `;
+        }
+    }
+
+    function addQuestion(chapterNum, lessonNum) {
+        const questionsDiv = document.getElementById(`questions_${chapterNum}_${lessonNum}`);
+        const qNum = questionsDiv.children.length + 1;
+        const qDiv = document.createElement('div');
+        qDiv.className = 'question-block';
+        qDiv.innerHTML = `
+            <h5>Question ${qNum}</h5>
+            <input type="text" name="question_text_${chapterNum}_${lessonNum}_${qNum}" placeholder="Question Content" required style="margin-bottom:8px; width:1000px;">
+            <br>
+            <div style="margin-bottom: 6px;">
+                <input type="text" name="answer_a_${chapterNum}_${lessonNum}_${qNum}" placeholder="Answer A" required style="width:1000px; margin-bottom:6px;">
+            </div>
+            <div style="margin-bottom: 6px;">
+                <input type="text" name="answer_b_${chapterNum}_${lessonNum}_${qNum}" placeholder="Answer B" required style="width:1000px; margin-bottom:6px;">
+            </div>
+            <div style="margin-bottom: 6px;">
+                <input type="text" name="answer_c_${chapterNum}_${lessonNum}_${qNum}" placeholder="Answer C" required style="width:1000px; margin-bottom:6px;">
+            </div>
+            <div style="margin-bottom: 12px;">
+                <input type="text" name="answer_d_${chapterNum}_${lessonNum}_${qNum}" placeholder="Answer D" required style="width:1000px;">
+            </div>
+            <div style="margin-bottom: 12px;">
+                <label for="correct_answer_${chapterNum}_${lessonNum}_${qNum}" style="font-weight:500;">Correct Answer:</label>
+                <select name="correct_answer_${chapterNum}_${lessonNum}_${qNum}" id="correct_answer_${chapterNum}_${lessonNum}_${qNum}" required style="margin-left:10px; padding:4px 8px;">
+                    <option value="">Select</option>
+                    <option value="A">A</option>
+                    <option value="B">B</option>
+                    <option value="C">C</option>
+                    <option value="D">D</option>
+                </select>
+            </div>
+            <hr>
+        `;
+        questionsDiv.appendChild(qDiv);
+    }
+
+    function deleteChapter(btn, chapterNum) {
+        const chapterBlock = btn.closest('.chapter-block');
+        chapterBlock.remove();
+
+        // Cập nhật lại số thứ tự và name cho các chapter sau
+        let chapters = document.querySelectorAll('.chapter-block');
+        chapterCount = chapters.length;
+        chapters.forEach((chapter, idx) => {
+            let newNum = idx + 1;
+            chapter.querySelector('.chapter-header h3').textContent = `Chapter ${newNum}`;
+            chapter.querySelector('input[name^="chapter_title_"]').setAttribute('name', `chapter_title_${newNum}`);
+            chapter.querySelector('.lessons').setAttribute('id', `lessons_${newNum}`);
+            // Cập nhật lại nút add lesson
+            chapter.querySelector('.btn-add-lesson').setAttribute('onclick', `addLesson(${newNum})`);
+            // Cập nhật lại các lesson bên trong
+            updateLessonNumbering(chapter, newNum);
+        });
+    }
+
+    function deleteLesson(btn, chapterNum, lessonNum) {
+        const lessonBlock = btn.closest('.lesson-block');
+        lessonBlock.remove();
+
+        // Cập nhật lại số thứ tự và name cho các lesson sau trong chapter này
+        let lessonsDiv = document.getElementById(`lessons_${chapterNum}`);
+        let lessons = lessonsDiv.querySelectorAll('.lesson-block');
+        lessons.forEach((lesson, idx) => {
+            let newNum = idx + 1;
+            lesson.querySelector('.lesson-header h4').textContent = `Lesson ${newNum}`;
+            lesson.querySelector('select[name^="lesson_type_"]').setAttribute('name', `lesson_type_${chapterNum}_${newNum}`);
+            lesson.querySelector('select[name^="lesson_type_"]').setAttribute('onchange', `toggleLessonType(this, ${chapterNum}, ${newNum})`);
+            lesson.querySelector('.lesson-content').setAttribute('id', `lesson_content_${chapterNum}_${newNum}`);
+            // Cập nhật lại các input bên trong lesson-content
+            updateLessonContentNames(lesson, chapterNum, newNum);
+            // Cập nhật lại nút delete lesson
+            lesson.querySelector('.btn-delete-lesson').setAttribute('onclick', `deleteLesson(this, ${chapterNum}, ${newNum})`);
+        });
+    }
+
+    function updateLessonNumbering(chapter, chapterNum) {
+        let lessonsDiv = chapter.querySelector('.lessons');
+        let lessons = lessonsDiv.querySelectorAll('.lesson-block');
+        lessons.forEach((lesson, idx) => {
+            let newNum = idx + 1;
+            lesson.querySelector('.lesson-header h4').textContent = `Lesson ${newNum}`;
+            lesson.querySelector('select[name^="lesson_type_"]').setAttribute('name', `lesson_type_${chapterNum}_${newNum}`);
+            lesson.querySelector('select[name^="lesson_type_"]').setAttribute('onchange', `toggleLessonType(this, ${chapterNum}, ${newNum})`);
+            lesson.querySelector('.lesson-content').setAttribute('id', `lesson_content_${chapterNum}_${newNum}`);
+            updateLessonContentNames(lesson, chapterNum, newNum);
+            lesson.querySelector('.btn-delete-lesson').setAttribute('onclick', `deleteLesson(this, ${chapterNum}, ${newNum})`);
+        });
+    }
+
+    function updateLessonContentNames(lesson, chapterNum, lessonNum) {
+        // Cập nhật lại name cho các input bên trong lesson-content
+        let contentDiv = lesson.querySelector('.lesson-content');
+        let inputs = contentDiv.querySelectorAll('input, select');
+        inputs.forEach(input => {
+            if (input.name.startsWith('lesson_title_')) {
+                input.setAttribute('name', `lesson_title_${chapterNum}_${lessonNum}`);
+            }
+            if (input.name.startsWith('embed_code_')) {
+                input.setAttribute('name', `embed_code_${chapterNum}_${lessonNum}`);
+            }
+            if (input.name.startsWith('question_list_title_')) {
+                input.setAttribute('name', `question_list_title_${chapterNum}_${lessonNum}`);
+            }
+            if (input.name.startsWith('question_text_') || input.name.startsWith('answer_a_') || input.name.startsWith('answer_b_') || input.name.startsWith('answer_c_') || input.name.startsWith('answer_d_') || input.name.startsWith('correct_answer_')) {
+                // Cập nhật lại tên cho các trường câu hỏi nếu có
+                // Bạn có thể bổ sung logic cập nhật cho các trường này nếu cần
+            }
+        });
+    }
+
+    let selectedSuggestionIndex = -1;
+
+    $('#category-input').on('keydown', function(e) {
+        let items = $('#category-suggestions .category-suggestion-item');
+        if (!items.length) return;
+
+        if (e.key === "ArrowDown") {
+            e.preventDefault();
+            selectedSuggestionIndex = (selectedSuggestionIndex + 1) % items.length;
+            items.removeClass('active');
+            $(items[selectedSuggestionIndex]).addClass('active');
+            // Scroll into view if needed
+            items[selectedSuggestionIndex].scrollIntoView({block: "nearest"});
+        } else if (e.key === "ArrowUp") {
+            e.preventDefault();
+            selectedSuggestionIndex = (selectedSuggestionIndex - 1 + items.length) % items.length;
+            items.removeClass('active');
+            $(items[selectedSuggestionIndex]).addClass('active');
+            items[selectedSuggestionIndex].scrollIntoView({block: "nearest"});
+        } else if (e.key === "Enter") {
+            if (selectedSuggestionIndex > -1) {
+                e.preventDefault();
+                $(items[selectedSuggestionIndex]).click();
+                selectedSuggestionIndex = -1;
+            }
+        } else {
+            selectedSuggestionIndex = -1;
+        }
+    });
+
+    // Khi nhập mới, reset index và active
+    $('#category-input').on('input', function() {
+        selectedSuggestionIndex = -1;
+    });
+    </script>
+</body>
+</html>

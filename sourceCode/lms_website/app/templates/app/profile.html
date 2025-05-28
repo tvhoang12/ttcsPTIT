@@ -1,0 +1,265 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>User Profile</title>
+    <link rel="stylesheet" href="https://pro.fontawesome.com/releases/v5.10.0/css/all.css" />
+    <link rel="stylesheet" href="{% static 'style.css' %}">
+    {{ form.media }}
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <style>
+        .profile-info-container {
+            background: #fff;
+            border: 10px solid #e0e0e0;
+            border-radius: 18px;
+            max-width: 1200px;
+            margin: 40px auto 40px auto;
+            padding: 32px 24px;
+        }
+        .profile-main-row {
+            display: flex;
+            flex-direction: row;
+            align-items: flex-start;
+            gap: 40px;
+            width: 100%;
+        }
+        .profile-info-box, .profile-edit-info-box {
+            width: 100%;
+            max-width: 300px;
+            min-width: 300px;
+            padding: 24px 12px;
+            background: #fff;
+            border-radius: 12px;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.07);
+            text-align: left;
+            margin-bottom: 0;
+            height: auto; /* Đảm bảo chiều cao tự động */
+        }
+        .profile-avatar-edit {
+            width: 90px;
+            height: 90px;
+            object-fit: cover;
+            border-radius: 50%;
+            margin-bottom: 12px;
+            cursor: pointer;
+            border: 2px solid #e0e0e0;
+            transition: border 0.2s;
+        }
+        .profile-avatar-edit:hover {
+            border: 2px solid #007bff;
+        }
+        .profile-description-box, .profile-edit-description-box {
+            width: 100%;
+            min-width: 500px;
+            min-height: 500px;
+            max-width: 600px;
+            background: #f7f7f7;
+            border-radius: 10px;
+            padding: 20px 28px;
+            margin: 0 0 18px 0;
+            box-shadow: 0 1px 6px rgba(0,0,0,0.04);
+            display: flex;
+            flex-direction: column;
+        }
+        .profile-description-box h3, .profile-edit-description-box h3 {
+            margin-top: 0;
+            color: #151534;
+            font-size: 1.2em;
+            font-weight: bold;
+        }
+        .profile-description-box p {
+            color: #333;
+            font-size: 1em;
+            margin-bottom: 0;
+        }
+        .profile-edit-container {
+            display: flex;
+            flex-direction: row;
+            gap: 40px;
+            align-items: flex-start;
+            justify-content: flex-start;
+            width: 100%;
+            margin-top: 32px;
+        }
+        .profile-edit-info-box label {
+            display: block;
+            text-align: left;
+            margin: 10px 0 4px 0;
+            font-weight: 500;
+        }
+        .profile-edit-info-box input[type="text"],
+        .profile-edit-info-box input[type="email"],
+        .profile-edit-info-box input[type="date"],
+        .profile-edit-info-box select {
+            width: 100%;
+            padding: 6px 10px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+            margin-bottom: 10px;
+        }
+        .profile-edit-info-box input[type="file"] {
+            display: none;
+        }
+        .profile-edit-info-box .profile-avatar-edit {
+            margin-bottom: 18px;
+        }
+        .profile-edit-description-box textarea,
+        .profile-edit-description-box .cke {
+            width: 100% !important;
+            min-height: 180px;
+        }
+        .profile-edit-description-box {
+            background: #f7f7f7;
+        }
+        .profile-edit-btns {
+            margin-top: 18px;
+            display: flex;
+            gap: 12px;
+        }
+        #edit-profile-btn {
+            margin: 18px auto 0 auto;
+            display: block;
+        }
+        @media (max-width: 1100px) {
+            .profile-info-container {
+                padding: 12px 2vw;
+            }
+            .profile-description-box, .profile-edit-description-box {
+                min-width: 320px;
+                min-height: 320px;
+            }
+        }
+        @media (max-width: 900px) {
+            .profile-main-row, .profile-edit-container {
+                flex-direction: column;
+                align-items: center;
+            }
+            .profile-description-box, .profile-edit-description-box {
+                margin: 0 auto 18px auto;
+            }
+            .profile-info-box, .profile-edit-info-box {
+                max-width: 100%;
+                min-width: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    {% include 'app/navigation.html' %}
+
+    <section id="profile">
+        <div class="content">
+            <h1>User Profile</h1>
+        </div>
+
+        <div class="profile-info-container">
+            <div class="profile-main-row">
+                <!-- User Information (Left) -->
+                <div class="profile-info-box">
+                    {% if messages %}
+                    <div class="messages">
+                        {% for message in messages %}
+                            <div style="position:relative; margin-bottom:8px;">
+                                <p class="{% if message.tags %}{{ message.tags }}-message{% endif %}" style="margin:0; padding-right:28px;">
+                                    {{ message }}
+                                </p>
+                                <button onclick="this.parentElement.style.display='none';"
+                                    style="position:absolute;top:0;right:0;background:none;border:none;font-size:20px;line-height:1;color:#888;cursor:pointer;">&times;</button>
+                            </div>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+                    <img src="{% if user.avatar %}{{ user.avatar.url }}{% else %}{% static 'images/avatar-default.png' %}{% endif %}" 
+                         alt="User Avatar" class="profile-avatar-edit" id="avatar-display">
+                    <h2>{{ user.username }}</h2>
+                    <p><i class="fas fa-envelope"></i> Email: {{ user.email }}</p>
+                    <p><i class="fas fa-phone"></i> Phone: {{ user.phone|default:"Not provided" }}</p>
+                    <p><i class="fas fa-birthday-cake"></i> Birthday: {{ user.birthday|date:"d/m/Y"|default:"Not provided" }}</p>
+                    <p><i class="fas fa-user-tag"></i> Role: 
+                        {% if user.role == 'student' %}Student
+                        {% elif user.role == 'instructor' %}Instructor
+                        {% elif user.role == 'admin' %}Admin
+                        {% else %}User{% endif %}
+                    </p>
+                    <button id="edit-profile-btn" class="btn">Edit Profile</button>
+                </div>
+                <!-- Profile Description (Right) -->
+                <div class="profile-description-box">
+                    <h3>About Me</h3>
+                    <div id="profile-desc-content">{{ user.self_description|safe|default:"No description provided." }}</div>
+                </div>
+            </div>
+
+            <!-- Edit Profile Form (hidden by default) -->
+            <div class="profile-edit-container" style="display:none;">
+                <form method="post" action="{% url 'profile' %}" enctype="multipart/form-data" style="display: flex; flex-direction: row; gap: 40px; align-items: flex-start; width: 100%;">
+                    {% csrf_token %}
+                    {{ form.non_field_errors }}
+                    <div class="profile-edit-info-box">
+                        <label for="avatar-input">
+                            <img src="{% if user.avatar %}{{ user.avatar.url }}{% else %}{% static 'images/avatar-default.png' %}{% endif %}" 
+                                 alt="User Avatar" class="profile-avatar-edit" id="avatar-edit-img">
+                        </label>
+                        {{ form.avatar }}
+                        <label for="email">Email</label>
+                        <!-- <input type="email" name="email" id="email" value="{{ user.email }}" readonly> -->
+                        {{ form.email }}
+                        <label for="phone">Phone</label>
+                        {{ form.phone }}
+
+                        <label for="birthday">Birthday</label>
+                        {{ form.birthday }}
+
+                        <label for="role">Role</label>
+                        {{ form.role }}
+                    </div>
+                    <div class="profile-edit-description-box">
+                        <h3>Edit Description</h3>
+                        {{ form.self_description }}
+                        <div class="profile-edit-btns">
+                            <input type="submit" value="Update Profile" class="btn">
+                            <button type="button" id="cancel-edit-btn" class="btn cancel-btn">Cancel</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </section>
+
+    {% include 'app/footer.html' %}
+
+    <script>
+        $(document).ready(function() {
+            // Show edit form in 2 columns when "Edit Profile" button is clicked
+            $('#edit-profile-btn').click(function() {
+                $('.profile-edit-container').insertAfter('.profile-info-container .profile-main-row').fadeIn(200);
+                $(this).hide();
+            });
+
+            // Hide form when "Cancel" button is clicked
+            $('#cancel-edit-btn').click(function() {
+                $('.profile-edit-container').fadeOut(200, function() {
+                    $('#edit-profile-btn').show();
+                });
+            });
+
+            // Avatar click triggers file input
+            $('#avatar-edit-img').on('click', function() {
+                $('#id_avatar').trigger('click');
+            });
+
+            // Preview avatar on file select
+            $('#id_avatar').on('change', function(e) {
+                if (e.target.files && e.target.files[0]) {
+                    var reader = new FileReader();
+                    reader.onload = function (e) {
+                        $('#avatar-edit-img').attr('src', e.target.result);
+                    }
+                    reader.readAsDataURL(e.target.files[0]);
+                }
+            });
+        });
+    </script>
+</body>
+</html>

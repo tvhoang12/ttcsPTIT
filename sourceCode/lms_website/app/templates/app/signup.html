@@ -1,0 +1,102 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ blog.title }} - Techedu</title>
+    <link rel="stylesheet" href="https://pro.fontawesome.com/releases/v5.10.0/css/all.css" />
+    <link rel="stylesheet" href="{% static 'style.css' %}">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js" integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
+    <script src="{% static 'js/script.js' %}"></script>
+  </head>
+<body>
+    {% include 'app/navigation.html' %}
+
+    <section id="registration">
+        <div class="content">
+          <h1>Sign up</h1>
+        </div>
+        <div class="form">
+          {% if request.session.signup_data %}
+            <!-- Bước xác thực mã -->
+            <form method="POST" action="{% url 'verify_email' %}" id="verifyForm" autocomplete="off">
+              {% csrf_token %}
+              <!-- Nút back về form đăng ký -->
+              <button type="button" id="backToSignup" style="position:absolute;top:10px;left:10px;background:none;border:none;font-size:26px;color:#333;cursor:pointer;" title="Back to sign up">
+                &#8592;
+              </button>
+              <h3 style="padding-left:32px;">Enter Verification Code</h3>
+              <p style="margin-bottom:12px;">A verification code has been sent to <b>{{ request.session.signup_data.email }}</b>. Please enter it below.</p>
+              <input type="text" name="verification_code" placeholder="Enter verification code" required style="margin-bottom:12px;">
+              <input type="submit" value="Verify" class="btn">
+              <button type="button" id="resendBtn" class="btn" style="background:#6c757d; margin-left:10px;" disabled onclick="location.href='{% url 'resend_verification_code' %}'">Resend Code</button>
+              <p id="timer" style="margin-top:10px; color:#888;"></p>
+            </form>
+            <script>
+              // Xử lý nút back về form đăng ký
+              document.getElementById('backToSignup').onclick = function(e) {
+                  e.preventDefault();
+                  fetch("{% url 'clear_signup_session' %}", {method: "POST", headers: {'X-CSRFToken': '{{ csrf_token }}'} })
+                    .then(() => { window.location.reload(); });
+              };
+
+              // Xử lý clear session khi rời trang
+              window.addEventListener('beforeunload', function(e) {
+                  // Chỉ clear nếu không phải reload hoặc submit form
+                  if (!window.__signupFormSubmitted) {
+                      navigator.sendBeacon("{% url 'clear_signup_session' %}");
+                  }
+              });
+              document.getElementById('verifyForm').onsubmit = function() {
+                  window.__signupFormSubmitted = true;
+              };
+
+              // Đếm ngược resend code
+              let timeLeft = 60;
+              const timer = document.getElementById('timer');
+              const resendBtn = document.getElementById('resendBtn');
+              function updateTimer() {
+                  if (timeLeft > 0) {
+                      timer.textContent = "You can resend code in " + timeLeft + "s";
+                      resendBtn.disabled = true;
+                      resendBtn.style.background = "#6c757d";
+                      timeLeft--;
+                      setTimeout(updateTimer, 1000);
+                  } else {
+                      timer.textContent = "";
+                      resendBtn.disabled = false;
+                      resendBtn.style.background = "#28a745";
+                  }
+              }
+              updateTimer();
+            </script>
+          {% else %}
+            <!-- Bước đăng ký -->
+            <form method="POST" action="{% url 'signup' %}">
+              {% csrf_token %}
+              <h3>Create free account now</h3>
+              <div class="name-row">
+                <input type="text" name="first_name" placeholder="First Name" required>
+                <input type="text" name="last_name" placeholder="Last Name" required>
+              </div>
+              <input type="text" name="username" placeholder="Username" required>
+              <input type="email" name="email" placeholder="Email" required>
+              <select name="role" required>
+                <option value="">Select Role</option>
+                <option value="student">Student</option>
+                <option value="instructor">Instructor</option>
+              </select>
+              <input type="password" name="password" placeholder="Password" required>
+              <input type="password" name="confirm_password" placeholder="Confirm Password" required>
+              <input type="submit" value="Sign up" class="btn">
+              <p>Already have an account? <a href="{% url 'login' %}">Login here</a></p>
+            </form>
+          {% endif %}
+        </div>
+      </section>
+
+    {% include 'app/footer.html' %}
+</body>
+</html>

@@ -1,32 +1,18 @@
 from django.contrib import admin
-from .models import Users, Courses, Videos, Posts
+from .models import User
+from .models import Course
+from .models import Contact
+from .models import Lesson
+from .models import Enrollment
+from .models import TeachingAssignment, CourseCategory, Blog, Question
 
-# Hiển thị chi tiết Users trong admin
-@admin.register(Users)
-class UsersAdmin(admin.ModelAdmin):
-    list_display = ("id", "first_name", "last_name", "email", "created_at")  # Cột hiển thị
-    search_fields = ("first_name", "last_name", "email")  # Cho phép tìm kiếm
-    list_filter = ("created_at",)  # Bộ lọc
-    ordering = ("id",)  # Sắp xếp theo ID
-
-# Hiển thị Courses trong admin
-@admin.register(Courses)
-class CoursesAdmin(admin.ModelAdmin):
-    list_display = ("id", "name", "created_at")  
-    search_fields = ("name",)  
-    list_filter = ("created_at",)
-
-# Hiển thị Videos trong admin
-@admin.register(Videos)
-class VideosAdmin(admin.ModelAdmin):
-    list_display = ("id", "name", "created_at")  
-    search_fields = ("name",)  
-    list_filter = ("created_at",)
-
-# Hiển thị Posts trong admin
-@admin.register(Posts)
-class PostsAdmin(admin.ModelAdmin):
-    list_display = ("id", "title", "created_at")  
-    search_fields = ("title",)  
-    list_filter = ("created_at",)
-    ordering = ("id",)
+# Register your models here.
+admin.site.register(User)
+admin.site.register(Course)
+admin.site.register(Contact)
+admin.site.register(Lesson)
+admin.site.register(Enrollment)
+admin.site.register(TeachingAssignment)
+admin.site.register(CourseCategory)
+admin.site.register(Blog)
+admin.site.register(Question)
