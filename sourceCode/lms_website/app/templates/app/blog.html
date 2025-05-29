@@ -25,7 +25,8 @@
             <!-- Danh sách bài viết dạng thanh ngang -->
             <div style="flex: 2;">
                 <a href="{% url 'new_blog' %}" class="btn" style="margin-bottom: 24px; display: inline-block;">Add new</a>
-                <div class="course-list">
+                <input id="searchBlogInput" type="text" placeholder="Tìm kiếm bài viết..." style="width: 100%; padding: 10px; margin-bottom: 18px; border-radius: 6px; border: 1px solid #eee; font-size: 1rem;">
+                <div class="course-list" id="blogList">
                     {% for blog in blogs %}
                         <div class="course-row">
                             <!-- Avatar người dùng -->
@@ -125,6 +126,35 @@
             var parentId = $(this).data('comment-id');
             $('#parent_id_input').val(parentId);
             $('.comment-input').focus();
+        });
+
+        $('#searchBlogInput').on('input', function() {
+            let keyword = $(this).val();
+            $.ajax({
+                url: "{% url 'blog_search_ajax' %}",
+                data: { 'q': keyword },
+                dataType: 'json',
+                success: function(data) {
+                    let html = '';
+                    if (data.blogs.length > 0) {
+                        data.blogs.forEach(function(blog) {
+                            html += `
+                            <div class="course-row">
+                                <img src="${blog.avatar}" alt="${blog.author}" style="width:80px;height:80px;object-fit:cover;border-radius:50%;margin-right:32px;">
+                                <div class="course-row-content">
+                                    <h3><a href="${blog.url}">${blog.title}</a></h3>
+                                    <div class="blog-content-preview">${blog.content_preview}</div>
+                                    <p style="font-size: 0.95em; color: #888;"><i class="fa fa-user"></i> ${blog.author} &nbsp;<i class="fa fa-clock"></i> ${blog.created_at}</p>
+                                </div>
+                            </div>
+                            `;
+                        });
+                    } else {
+                        html = '<p>No blog blogs available at the moment.</p>';
+                    }
+                    $('#blogList').html(html);
+                }
+            });
         });
     </script>
 </body>

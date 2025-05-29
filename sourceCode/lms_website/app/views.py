@@ -723,3 +723,21 @@ def course_search_ajax(request):
             'category': c.category.name if hasattr(c, 'category') and c.category else '',
         })
     return JsonResponse({'courses': data})
+
+def blog_search_ajax(request):
+    q = request.GET.get('q', '')
+    blogs = Blog.objects.all()
+    if q:
+        blogs = blogs.filter(title__icontains=q)
+    data = []
+    for b in blogs[:20]:  # Giới hạn 20 kết quả
+        data.append({
+            'id': b.id,
+            'title': b.title,
+            'author': b.author.get_full_name() if hasattr(b.author, 'get_full_name') else b.author.username,
+            'created_at': b.created_at.strftime('%d/%m/%Y'),
+            'content_preview': b.content[:120] + ('...' if len(b.content) > 120 else ''),
+            'avatar': b.author.avatar.url if hasattr(b.author, 'avatar') and b.author.avatar else '/static/images/avatar-default.png',
+            'url': f"/blog/{b.id}/",
+        })
+    return JsonResponse({'blogs': data})

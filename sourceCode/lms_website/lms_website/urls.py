@@ -38,6 +38,7 @@ urlpatterns = [
     path("blog/", views.blog_view, name="blog"),
     path("blog/<int:blog_id>/", views.blog_detail_view, name="blog_detail"),
     path('blog/new/', views.new_blog_view, name='new_blog'),
+    path('blog/search/', views.blog_search_ajax, name='blog_search_ajax'),
     #courses
     path("courses/", views.course_view, name="courses"),
     path("contact/<int:userID>", views.contact_view, name="contact"),

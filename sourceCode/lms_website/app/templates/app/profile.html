@@ -212,7 +212,10 @@
                         {{ form.birthday }}
 
                         <label for="role">Role</label>
-                        {{ form.role }}
+                        <select name="role" id="id_role">
+                            <option value="student" {% if form.role.value == 'student' %}selected{% endif %}>Student</option>
+                            <option value="instructor" {% if form.role.value == 'instructor' %}selected{% endif %}>Instructor</option>
+                        </select>
                     </div>
                     <div class="profile-edit-description-box">
                         <h3>Edit Description</h3>

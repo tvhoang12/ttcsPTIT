@@ -73,13 +73,15 @@
     </section>
 
     <!-- Nếu là giảng viên thì hiển thị nút tạo khóa học -->
-    {% if user.is_authenticated and user.role == "instructor" %}
-    <section style="text-align: right; margin: 24px 20px 24px 0;">
+    {% if user.is_authenticated and user.role in "instructor,admin" %}
+    <section style="text-align: right; margin: 24px 20px 24px 0; display: flex; justify-content: flex-end; align-items: center; gap: 12px;">
         <a href="{% url 'create_course' %}" class="btn" style="display: inline-block;">Create New Course</a>
-    </section>
-    {% elif user.is_authenticated and user.role == "admin" %}
-    <section style="text-align: right; margin: 24px 20px 24px 0;">
-        <a href="{% url 'create_course' %}" class="btn" style="display: inline-block;">Create New Course</a>
+        <div style="position: relative;">
+            <input id="searchMyCoursesInput" type="text" placeholder="Tìm kiếm khóa học..." style="padding: 8px 32px 8px 12px; border-radius: 4px; border: 1px solid #eee; font-size: 1rem; min-width: 220px;">
+            <span style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); color: #aaa; pointer-events: none;">
+                <i class="fa fa-search"></i>
+            </span>
+        </div>
     </section>
     {% endif %}
 
@@ -173,7 +175,6 @@
                         </div>
                         <div style="display: flex; gap: 8px; margin-left: 16px;">
                             <a href="{% url 'course_detail' course.courseID %}" class="btn btn-sm" style="background: #007bff; color: #fff;">View</a>
-                            <a href="{% url 'study_course' course.courseID %}" class="btn btn-sm" style="background: #28a745; color: #fff;">Study</a>
                         </div>
                     </div>
                 {% endfor %}
@@ -192,6 +193,15 @@
         });
         $('#close-btn').click(function () {
             $('nav .navigation ul').removeClass('active');
+        });
+
+        // Search My Courses
+        $('#searchMyCoursesInput').on('input', function() {
+            let keyword = $(this).val().toLowerCase();
+            $('#course-list .course-row').each(function() {
+                let text = $(this).text().toLowerCase();
+                $(this).toggle(text.indexOf(keyword) !== -1);
+            });
         });
     </script>
 </body>
