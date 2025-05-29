@@ -16,6 +16,42 @@
 </head>
 
 <body>
+    {% if is_birthday %}
+    <div id="birthday-banner" style="
+        position: fixed;
+        top: 120px; /* Giảm top để banner sát mép trên hơn */
+        right: -500px;
+        z-index: 9999;
+        background: linear-gradient(90deg,#ffe259,#ffa751);
+        color: #222;
+        font-weight: bold;
+        font-size: 1.1em;
+        padding: 16px 36pxpx; /* Giảm padding để banner thấp hơn */
+        border-radius: 8px;
+        box-shadow: 0 2px 16px rgba(0,0,0,0.12);
+        transition: right 1.2s cubic-bezier(.77,0,.18,1);
+        height: 38px; /* Đặt chiều cao cố định nhỏ hơn */
+        line-height: 24px;
+        display: flex;
+        align-items: center;
+        ">
+        🎉 Happy Birthday, {{ user.get_full_name|default:user.username }}! 🎂
+    </div>
+    <script>
+        window.addEventListener('DOMContentLoaded', function() {
+            var banner = document.getElementById('birthday-banner');
+            setTimeout(function() {
+                banner.style.right = '40px';
+                setTimeout(function() {
+                    banner.style.opacity = '0';
+                    setTimeout(function() {
+                        banner.remove();
+                    }, 300);
+                }, 3500); // Hiển thị banner trong 3.5s
+            }, 300); // Delay nhỏ để hiệu ứng mượt hơn
+        });
+    </script>
+    {% endif %}
     {% include 'app/navigation.html' %}
 
     <!-- Home -->

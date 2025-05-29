@@ -20,7 +20,7 @@ class CourseForm(forms.ModelForm):
     class Meta:
         model = Course
         fields = [
-            'courseName', 'thumbnail', 'description', 'price', 'duration',
+            'courseName', 'thumbnail', 'description', 'duration',
             'level', 'language', 'categories'
         ]
 

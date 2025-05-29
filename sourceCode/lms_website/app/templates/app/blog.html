@@ -46,6 +46,10 @@
                                     <i class="fa fa-user"></i> {{ blog.author.get_full_name|default:blog.author.username }} &nbsp;
                                     <i class="fa fa-clock"></i> {{ blog.created_at|date:"d/m/Y" }}
                                 </p>
+                                <div style="font-size: 0.98em; color: #888; margin-top: 6px;">
+                                    <i class="fa fa-eye"></i> Views: {{ blog.views }} &nbsp;
+                                    <i class="fa fa-comments"></i> Comments: {{ blog.num_comments|default:0 }}
+                                </div>
                             </div>
                         </div>
                     {% empty %}
@@ -73,18 +77,18 @@
                     <h3 style="margin-top:0; font-size:1.1rem; color:#222;">Popular blogs</h3>
                     <ul style="list-style:none; padding:0; margin:0;">
                         {% for blog in popular_blogs %}
-                            <li style="margin-bottom: 14px;">
-                                <a href="{% url 'blog_detail' blog.id %}" style="color:#222; text-decoration:none;">
-                                    {{ blog.title|truncatechars:40 }}
-                                </a>
-                                <br>
-                                <span style="font-size:12px; color:#888;">
-                                    <i class="fa fa-eye"></i> 
-                                    {% if blog.views %}{{ blog.views }}{% else %}0{% endif %} lượt xem
-                                </span>
-                            </li>
-                        {% endfor %}
-                    </ul>
+        <li style="margin-bottom: 14px;">
+            <a href="{% url 'blog_detail' blog.id %}" style="color:#222; text-decoration:none;">
+                {{ blog.title|truncatechars:40 }}
+            </a>
+            <br>
+            <span style="font-size:12px; color:#888;">
+                <i class="fa fa-eye"></i> {{ blog.views|default:0 }} lượt xem
+                &nbsp; <i class="fa fa-comments"></i> {{ blog.num_comments|default:0 }} bình luận
+            </span>
+        </li>
+    {% endfor %}
+</ul>
                 </div>
             </aside>
         </div>

@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import date, datetime
 from django.shortcuts import get_object_or_404, render, redirect
 from django.http import HttpResponse, JsonResponse
 from django.contrib.auth import authenticate, login, get_user_model, logout
@@ -6,7 +6,7 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.csrf import csrf_exempt
 from .models import Question, User, Course, Lesson, Contact, Enrollment, CourseCategory, Blog, BlogComment, Chapter
-from django.db.models import Count
+from django.db.models import Count, FloatField, F, ExpressionWrapper
 from .forms import CourseForm, BlogForm, ProfileForm, BlogCommentForm  # Sẽ tạo ở bước 2
 from django.core.paginator import Paginator
 import re
@@ -90,21 +90,37 @@ def start_view(request):
         popular_blogs = Blog.objects.order_by('-views')[:3]
     else:
         popular_blogs = Blog.objects.order_by('-created_at')[:3]
+    
+    is_birthday = False
+    if request.user.is_authenticated and getattr(request.user, 'birthday', None):
+        today = date.today()
+        if request.user.birthday and request.user.birthday.month == today.month and request.user.birthday.day == today.day:
+            is_birthday = True
+            
     return render(request, "app/index.html", {
         "popular_courses": popular_courses,
-        "popular_blogs": popular_blogs
+        "popular_blogs": popular_blogs,
+        "is_birthday": is_birthday,
     })
 
 def blog_view(request):
-    # Lấy tất cả bài viết, sắp xếp mới nhất trước
-    blogs = Blog.objects.order_by('-created_at')
-    # 3 bài viết mới nhất
-    latest_blogs = Blog.objects.order_by('-created_at')[:3]
-    # 3 bài viết nổi bật nhất (nếu có trường 'views', nếu không thì lấy 3 bài đầu)
-    if hasattr(Blog, 'views'):
-        popular_blogs = Blog.objects.order_by('-views')[:3]
-    else:
-        popular_blogs = blogs[:3]
+    now = timezone.now().date()
+    blogs = Blog.objects.annotate(
+        num_comments=Count('comments'),
+        days_since=ExpressionWrapper(
+            (now - F('created_at__date')),
+            output_field=FloatField()
+        ),
+    ).annotate(
+        popularity=ExpressionWrapper(
+            (F('views') * 0.2 + F('num_comments') * 0.8) / (F('days_since') + 1),  # +1 để tránh chia cho 0
+            output_field=FloatField()
+        )
+    ).order_by('-created_at')
+
+    latest_blogs = blogs.order_by('-created_at')[:3]
+    popular_blogs = blogs.order_by('-popularity')[:3]
+
     return render(request, "app/blog.html", {
         "blogs": blogs,
         "latest_blogs": latest_blogs,
@@ -241,13 +257,10 @@ def profile_view(request):
             # Xử lý cập nhật thông tin cá nhân
             form = ProfileForm(request.POST, request.FILES, instance=user)
             if form.is_valid():
-                email = form.cleaned_data['email']
-                if User.objects.exclude(pk=user.pk).filter(email=email).exists():
-                    form.add_error('email', 'Email này đã được sử dụng bởi tài khoản khác.')
-                else:
-                    form.save()
-                    messages.success(request, "Cập nhật thông tin thành công.")
-                    return redirect('profile')
+                # Kiểm tra và cập nhật ngày sinh
+                form.save()
+                messages.success(request, "Cập nhật thông tin thành công.")
+                return redirect('profile')
     else:
         form = ProfileForm(instance=user)
     return render(request, 'app/profile.html', {'form': form, 'user': user})
@@ -355,6 +368,9 @@ def new_blog_view(request):
 
 def blog_detail_view(request, blog_id):
     blog = get_object_or_404(Blog, pk=blog_id)
+    # Tăng số view
+    blog.views = blog.views + 1
+    blog.save(update_fields=['views'])
     comments = blog.comments.filter(parent__isnull=True).order_by('-created_at')
     comment_form = BlogCommentForm()
 

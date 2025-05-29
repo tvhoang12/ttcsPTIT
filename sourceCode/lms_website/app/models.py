@@ -46,7 +46,6 @@ class Course(models.Model):
     thumbnail = models.ImageField(upload_to='thumbnails/', default="thumbnails/default-product-card.webp", null=True, blank=True)  # Thumbnail ảnh cho course
     
     description = models.TextField()  # Mô tả khóa học
-    price = models.DecimalField(max_digits=10, decimal_places=2)  # Giá khóa học
     duration = models.CharField(max_length=100)  # Thời gian khóa học
     
     created_at = models.DateTimeField(auto_now_add=True)  # Ngày giờ khóa học được tạo
