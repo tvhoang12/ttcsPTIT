@@ -84,7 +84,14 @@ def signup_view(request):
 
 def start_view(request):
     popular_courses = Course.objects.order_by('-rating', '-register_count')[:6]
-    return render(request, "app/index.html", {"popular_courses": popular_courses})
+    if hasattr(Blog, 'views'):
+        popular_blogs = Blog.objects.order_by('-views')[:3]
+    else:
+        popular_blogs = Blog.objects.order_by('-created_at')[:3]
+    return render(request, "app/index.html", {
+        "popular_courses": popular_courses,
+        "popular_blogs": popular_blogs
+    })
 
 def blog_view(request):
     # Lấy tất cả bài viết, sắp xếp mới nhất trước

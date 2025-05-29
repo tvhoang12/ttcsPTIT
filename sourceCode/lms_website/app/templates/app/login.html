@@ -43,9 +43,36 @@
                 <input type="password" name="password" placeholder="Password" required>
                 <input type="submit" value="Login" class="btn">
             </form>
-            <p>Don't have an account? <a href="{% url 'signup' %}">Sign Up</a></p>
+            <p>Don't have an account? <a href="{% url 'signup' %}">Sign Up</a> or <a href="#" id="forgotPasswordLink">Forgot password?</a></p>
         </div>
     </section>
+
+    <!-- Modal/Section for Forgot Password -->
+    <div id="forgotPasswordModal" style="display:none;position:fixed;top:0;left:0;width:100vw;height:100vh;background:rgba(0,0,0,0.3);z-index:9999;align-items:center;justify-content:center;">
+      <div style="background:#fff;padding:32px 24px;border-radius:8px;max-width:400px;width:100%;position:relative;">
+        <button onclick="document.getElementById('forgotPasswordModal').style.display='none'" style="position:absolute;top:8px;right:12px;background:none;border:none;font-size:22px;color:#888;cursor:pointer;">&times;</button>
+        <h3>Reset your password</h3>
+        <form method="POST" action="{% url 'forgot_password' %}" id="forgotPasswordForm">
+          {% csrf_token %}
+          <input type="email" name="email" placeholder="Enter your email" required style="margin-bottom:12px;">
+          <input type="submit" value="Send new password" class="btn">
+        </form>
+        <div id="forgotPasswordMsg" style="margin-top:10px;color:#28a745;display:none;"></div>
+      </div>
+    </div>
+
+    <script>
+      document.getElementById('forgotPasswordLink').onclick = function(e) {
+        e.preventDefault();
+        document.getElementById('forgotPasswordModal').style.display = 'flex';
+      };
+      // Optional: handle AJAX for forgot password (if you want to avoid reload)
+      document.getElementById('forgotPasswordForm').onsubmit = function(e) {
+        // You can remove this block if you want normal POST
+        // e.preventDefault();
+        // ...
+      };
+    </script>
 
     {% include 'app/footer.html' %}
 

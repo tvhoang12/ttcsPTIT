@@ -98,6 +98,12 @@
             border: 1px solid #ccc;
             margin-bottom: 10px;
         }
+        .profile-edit-info-box input[type="password"],
+        .profile-edit-info-box input[type="text"] {
+            font-size: 1.15em;
+            padding: 12px 14px;
+            margin-bottom: 18px;
+        }
         .profile-edit-info-box input[type="file"] {
             display: none;
         }
@@ -116,10 +122,44 @@
             margin-top: 18px;
             display: flex;
             gap: 12px;
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 10px;
+        }
+        .profile-edit-btns .btn, .profile-edit-btns .cancel-btn {
+            padding: 6px 18px;
+            font-size: 0.98em;
+            min-width: 90px;
         }
         #edit-profile-btn {
             margin: 18px auto 0 auto;
             display: block;
+        }
+        /* Tăng kích thước input chỉ cho form đổi mật khẩu */
+        #change-password-form input[type="password"] {
+            font-size: 16px;
+            padding: 15px 15px;
+            margin-bottom: 36px;
+            height: 50px;
+            border-radius: 8px;
+            border: 1.5px solid #bbb;
+            box-sizing: border-box;
+        }
+        #change-password-form label {
+            font-size: 16px;
+        }
+        /* Tăng kích thước input cho form xác thực mã */
+        #verify-password-code-form input[type="text"] {
+            font-size: 2.2em;
+            padding: 24px 40px;
+            margin-bottom: 36px;
+            height: 64px;
+            border-radius: 8px;
+            border: 1.5px solid #bbb;
+            box-sizing: border-box;
+        }
+        #verify-password-code-form label {
+            font-size: 1.3em;
         }
         @media (max-width: 1100px) {
             .profile-info-container {
@@ -142,6 +182,9 @@
                 max-width: 100%;
                 min-width: 0;
             }
+        }
+        .profile-edit-container.flex-row-reverse {
+            flex-direction: row-reverse;
         }
     </style>
 </head>
@@ -183,6 +226,7 @@
                         {% else %}User{% endif %}
                     </p>
                     <button id="edit-profile-btn" class="btn">Edit Profile</button>
+                    <button id="change-password-btn" class="btn" style="margin-left: 12px;">Change Password</button>
                 </div>
                 <!-- Profile Description (Right) -->
                 <div class="profile-description-box">
@@ -202,9 +246,6 @@
                                  alt="User Avatar" class="profile-avatar-edit" id="avatar-edit-img">
                         </label>
                         {{ form.avatar }}
-                        <label for="email">Email</label>
-                        <!-- <input type="email" name="email" id="email" value="{{ user.email }}" readonly> -->
-                        {{ form.email }}
                         <label for="phone">Phone</label>
                         {{ form.phone }}
 
@@ -227,6 +268,45 @@
                     </div>
                 </form>
             </div>
+
+            <!-- Change Password Form (ẩn mặc định) -->
+            <div class="profile-edit-container flex-row-reverse" id="change-password-container" style="display:none;">
+                <form method="post" action="{% url 'profile' %}" id="change-password-form" style="display: flex; flex-direction: row-reverse; gap: 40px; align-items: flex-start; width: 100%;">
+                    {% csrf_token %}
+                    <div class="profile-edit-description-box">
+                        <label for="old_password">Old Password</label>
+                        <input type="password" name="old_password" id="old_password" required>
+                        <label for="new_password">New Password</label>
+                        <input type="password" name="new_password" id="new_password" required>
+                        <label for="confirm_new_password">Confirm New Password</label>
+                        <input type="password" name="confirm_new_password" id="confirm_new_password" required>
+                    </div>
+                    <div class="profile-edit-info-box">
+                        <h3>Change Password</h3>
+                        <div class="profile-edit-btns">
+                            <input type="submit" value="Submit" class="btn btn-sm cancel-btn">
+                            <button type="button" id="cancel-change-password-btn" class="btn btn-sm">Cancel</button>
+                        </div>
+                        <div id="change-password-message" style="margin-top:12px;color:#dc3545;"></div>
+                    </div>
+                </form>
+                <!-- Form xác thực mã xác nhận, ẩn mặc định -->
+                <form method="post" action="{% url 'profile' %}" id="verify-password-code-form" style="display:none; flex-direction: row-reverse; gap: 40px; align-items: flex-start; width: 100%;">
+                    {% csrf_token %}
+                    <div class="profile-edit-info-box">
+                        <label for="verify_code">Verification Code</label>
+                        <input type="text" name="verify_code" id="verify_code" required>
+                    </div>
+                    <div class="profile-edit-description-box">
+                        <h3>Enter Verification Code</h3>
+                        <div class="profile-edit-btns">
+                            <input type="submit" value="Verify" class="btn btn-sm cancel-btn">
+                            <button type="button" id="cancel-verify-code-btn" class="btn btn-sm">Cancel</button>
+                        </div>
+                        <div id="verify-code-message" style="margin-top:12px;color:#dc3545;"></div>
+                    </div>
+                </form>
+            </div>
         </div>
     </section>
 
@@ -236,14 +316,18 @@
         $(document).ready(function() {
             // Show edit form in 2 columns when "Edit Profile" button is clicked
             $('#edit-profile-btn').click(function() {
-                $('.profile-edit-container').insertAfter('.profile-info-container .profile-main-row').fadeIn(200);
+                // Ẩn form đổi mật khẩu nếu đang mở
+                $('#change-password-container').hide();
+                // Hiện form chỉnh sửa
+                $('.profile-edit-container').not('#change-password-container').insertAfter('.profile-info-container .profile-main-row').fadeIn(200);
                 $(this).hide();
+                $('#change-password-btn').hide();
             });
-
             // Hide form when "Cancel" button is clicked
             $('#cancel-edit-btn').click(function() {
-                $('.profile-edit-container').fadeOut(200, function() {
+                $('.profile-edit-container').not('#change-password-container').fadeOut(200, function() {
                     $('#edit-profile-btn').show();
+                    $('#change-password-btn').show();
                 });
             });
 
@@ -261,6 +345,91 @@
                     }
                     reader.readAsDataURL(e.target.files[0]);
                 }
+            });
+
+            $('#change-password-btn').click(function() {
+                // Ẩn form chỉnh sửa nếu đang mở
+                $('.profile-edit-container').not('#change-password-container').hide();
+                // Hiện form đổi mật khẩu
+                $('#change-password-container').insertAfter('.profile-info-container .profile-main-row').fadeIn(200);
+                $('#edit-profile-btn').hide();
+                $(this).hide();
+            });
+            $('#cancel-change-password-btn').click(function() {
+                $('#change-password-container').fadeOut(200, function() {
+                    $('#edit-profile-btn').show();
+                    $('#change-password-btn').show();
+                    $('#change-password-form')[0].reset();
+                    $('#change-password-message').text('');
+                });
+            });
+            $('#cancel-verify-code-btn').click(function() {
+                $('#verify-password-code-form').fadeOut(200, function() {
+                    $('#change-password-container').fadeOut(0, function() {
+                        $('#edit-profile-btn').show();
+                        $('#change-password-btn').show();
+                        $('#verify-password-code-form')[0].reset();
+                        $('#verify-code-message').text('');
+                    });
+                });
+            });
+            $('#change-password-form').on('submit', function(e) {
+                e.preventDefault();
+                var oldPass = $('#old_password').val();
+                var newPass = $('#new_password').val();
+                var confirmPass = $('#confirm_new_password').val();
+                $('#change-password-message').text('');
+                if (newPass !== confirmPass) {
+                    $('#change-password-message').text('New passwords do not match.');
+                    return;
+                }
+                // Gửi AJAX kiểm tra mật khẩu cũ và gửi mã xác nhận
+                $.ajax({
+                    url: '{% url "profile" %}',
+                    type: 'POST',
+                    data: {
+                        'action': 'change_password',
+                        'old_password': oldPass,
+                        'new_password': newPass,
+                        'csrfmiddlewaretoken': $('[name=csrfmiddlewaretoken]').val()
+                    },
+                    success: function(data) {
+                        if (data.status === 'ok') {
+                            // Hiện form nhập mã xác nhận
+                            $('#change-password-form').hide();
+                            $('#verify-password-code-form').show();
+                        } else {
+                            $('#change-password-message').text(data.message || 'Error.');
+                        }
+                    },
+                    error: function(xhr) {
+                        $('#change-password-message').text(xhr.responseJSON && xhr.responseJSON.message ? xhr.responseJSON.message : 'Error.');
+                    }
+                });
+            });
+            $('#verify-password-code-form').on('submit', function(e) {
+                e.preventDefault();
+                var code = $('#verify_code').val();
+                $('#verify-code-message').text('');
+                $.ajax({
+                    url: '{% url "profile" %}',
+                    type: 'POST',
+                    data: {
+                        'action': 'verify_password_code',
+                        'verify_code': code,
+                        'csrfmiddlewaretoken': $('[name=csrfmiddlewaretoken]').val()
+                    },
+                    success: function(data) {
+                        if (data.status === 'ok') {
+                            location.reload();
+                        } else {
+                            $('#verify-code-message').text(data.message || 'Verification failed.');
+                        }
+                    },
+                    error: function(xhr) {
+                        $('#verify-code-message').text(xhr.responseJSON && xhr.responseJSON.message ? xhr.responseJSON.message : 'Verification failed.');
+                    }
+                });
             });
         });
     </script>

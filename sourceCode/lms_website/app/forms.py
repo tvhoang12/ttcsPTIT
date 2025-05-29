@@ -37,12 +37,11 @@ ROLE_CHOICES = [
 ]
 class ProfileForm(forms.ModelForm):
     self_description = forms.CharField(widget=CKEditorUploadingWidget(config_name='default'), required=False)
-    email = forms.EmailField(required=True, max_length=254)
     role = forms.ChoiceField(choices=ROLE_CHOICES, widget=forms.Select)
     birthday = forms.DateField(required=False, widget=forms.DateInput(attrs={'type': 'date'}))
     class Meta:
         model = User
-        fields = ['email', 'phone', 'birthday', 'avatar', 'role', 'self_description']
+        fields = [ 'phone', 'birthday', 'avatar', 'role', 'self_description']
 
 class BlogCommentForm(forms.ModelForm):
     class Meta:
