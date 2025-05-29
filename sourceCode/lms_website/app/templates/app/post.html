@@ -52,7 +52,11 @@
 
     <!-- Post Detail Section -->
     <section id="blog-detail">
-        <a href="{% url 'blog' %}" class="back-btn" style="margin-left: 10px;">← Quay lại danh sách Blog</a>
+        {% if request.META.HTTP_REFERER and 'my-blogs' in request.META.HTTP_REFERER %}
+            <a href="{% url 'my_blogs' %}" class="back-btn" style="margin-left: 10px;">← back to your blogs list</a>
+        {% else %}
+            <a href="{% url 'blog' %}" class="back-btn" style="margin-left: 10px;">← Back to Blogs</a>
+        {% endif %}
         <div style="display: flex; justify-content: space-between; align-items: center;">
             <h1 style="margin-bottom: 0;">{{ blog.title }}</h1>
             

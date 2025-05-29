@@ -14,6 +14,8 @@ from django.db import transaction
 import random
 from django.core.mail import send_mail
 from django.conf import settings
+from django.contrib.auth.hashers import check_password
+from django.utils import timezone
 
 User = get_user_model()
 
@@ -191,20 +193,64 @@ def blog_comment_view(request, courseID, lesson_id):
 
 @login_required
 def profile_view(request):
+    user = request.user
     if request.method == 'POST':
-        form = ProfileForm(request.POST, request.FILES, instance=request.user)
-        if form.is_valid():
-            # Kiểm tra email đã tồn tại cho user khác chưa
-            email = form.cleaned_data['email']
-            if User.objects.exclude(pk=request.user.pk).filter(email=email).exists():
-                form.add_error('email', 'Email này đã được sử dụng bởi tài khoản khác.')
-            else:
-                form.save()
-                messages.success(request, "Cập nhật thông tin thành công.")
-                return redirect('profile')
+        action = request.POST.get('action')
+        if action == 'change_password':
+            old_password = request.POST.get('old_password')
+            new_password = request.POST.get('new_password')
+            if not user.check_password(old_password):
+                return JsonResponse({'status': 'error', 'message': 'Mật khẩu cũ không đúng.'}, status=400)
+            # Tạo mã xác nhận và lưu vào session
+            verification_code = str(random.randint(100000, 999999))
+            request.session['change_password_code'] = verification_code
+            request.session['change_password_new'] = new_password
+            request.session['change_password_time'] = timezone.now().isoformat()
+            # Gửi email mã xác nhận
+            send_mail(
+                subject="Xác nhận đổi mật khẩu LMS",
+                message=f"Mã xác nhận đổi mật khẩu của bạn là: {verification_code}",
+                from_email=settings.DEFAULT_FROM_EMAIL,
+                recipient_list=[user.email],
+                fail_silently=False,
+            )
+            return JsonResponse({'status': 'ok', 'message': 'Mã xác nhận đã được gửi tới email của bạn.'})
+        elif action == 'verify_password_code':
+            code = request.POST.get('verify_code')
+            session_code = request.session.get('change_password_code')
+            new_password = request.session.get('change_password_new')
+            code_time = request.session.get('change_password_time')
+            if not (session_code and new_password and code_time):
+                return JsonResponse({'status': 'error', 'message': 'Phiên xác nhận không hợp lệ.'}, status=400)
+            # Kiểm tra mã và thời gian (5 phút)
+            if code != session_code:
+                return JsonResponse({'status': 'error', 'message': 'Mã xác nhận không đúng.'}, status=400)
+            from datetime import datetime, timedelta
+            code_time = datetime.fromisoformat(code_time)
+            if timezone.now() - code_time > timedelta(minutes=5):
+                return JsonResponse({'status': 'error', 'message': 'Mã xác nhận đã hết hạn.'}, status=400)
+            # Đổi mật khẩu
+            user.set_password(new_password)
+            user.save()
+            # Xóa session
+            del request.session['change_password_code']
+            del request.session['change_password_new']
+            del request.session['change_password_time']
+            return JsonResponse({'status': 'ok', 'message': 'Đổi mật khẩu thành công.'})
+        else:
+            # Xử lý cập nhật thông tin cá nhân
+            form = ProfileForm(request.POST, request.FILES, instance=user)
+            if form.is_valid():
+                email = form.cleaned_data['email']
+                if User.objects.exclude(pk=user.pk).filter(email=email).exists():
+                    form.add_error('email', 'Email này đã được sử dụng bởi tài khoản khác.')
+                else:
+                    form.save()
+                    messages.success(request, "Cập nhật thông tin thành công.")
+                    return redirect('profile')
     else:
-        form = ProfileForm(instance=request.user)
-    return render(request, 'app/profile.html', {'form': form, 'user': request.user})
+        form = ProfileForm(instance=user)
+    return render(request, 'app/profile.html', {'form': form, 'user': user})
 
 @login_required
 def my_courses_view(request):
@@ -748,3 +794,32 @@ def blog_search_ajax(request):
             'url': f"/blog/{b.id}/",
         })
     return JsonResponse({'blogs': data})
+
+@login_required
+def my_blog_view(request):
+    user_blogs = Blog.objects.filter(author=request.user).order_by('-created_at')
+    return render(request, 'app/my_blog.html', {'user_blogs': user_blogs})
+
+@login_required
+def edit_blog(request, blog_id):
+    blog = get_object_or_404(Blog, id=blog_id, author=request.user)
+    if request.method == 'POST':
+        form = BlogForm(request.POST, request.FILES, instance=blog)
+        if form.is_valid():
+            form.save()
+            messages.success(request, "Blog updated successfully.")
+            return redirect('my_blogs')
+        else:
+            messages.error(request, "Please correct the errors below.")
+    else:
+        form = BlogForm(instance=blog)
+    return render(request, 'app/edit_blog.html', {'form': form, 'blog': blog})
+
+@login_required
+def delete_blog(request, blog_id):
+    blog = get_object_or_404(Blog, id=blog_id, author=request.user)
+    if request.method == 'POST':
+        blog.delete()
+        messages.success(request, "Blog deleted successfully.")
+        return redirect('my_blogs')
+    return render(request, 'app/confirm_delete_blog.html', {'blog': blog})

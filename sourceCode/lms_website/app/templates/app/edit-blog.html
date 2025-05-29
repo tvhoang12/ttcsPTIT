@@ -1,0 +1,28 @@
+{% extends 'app/my_blog.html' %}
+{% load static %}
+{% block content %}
+<section style="max-width: 800px; margin: 40px auto; background: #fff; border-radius: 8px; box-shadow: 0 2px 16px rgba(0,0,0,0.08); padding: 32px;">
+    <h2>Edit Blog</h2>
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        <div style="margin-bottom: 18px;">
+            <label for="id_title" style="font-weight: 500;">Title</label>
+            {{ form.title }}
+            {% if form.title.errors %}
+                <div style="color: #dc3545;">{{ form.title.errors }}</div>
+            {% endif %}
+        </div>
+        <div style="margin-bottom: 18px;">
+            <label for="id_content" style="font-weight: 500;">Content</label>
+            {{ form.content }}
+            {% if form.content.errors %}
+                <div style="color: #dc3545;">{{ form.content.errors }}</div>
+            {% endif %}
+        </div>
+        <div style="display: flex; gap: 16px;">
+            <button type="submit" class="btn" style="background: #007bff; color: #fff;">Save Changes</button>
+            <a href="{% url 'my_blogs' %}" class="btn btn-sm" style="background: #888;">Cancel</a>
+        </div>
+    </form>
+</section>
+{% endblock %}
