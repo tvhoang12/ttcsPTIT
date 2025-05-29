@@ -155,8 +155,9 @@
         <!-- Courses Section -->
         <section id="courses" style="flex:1;">
             
-            <!-- Thêm dropdown ngay trên danh sách course -->
-            <div style="display: flex; justify-content: flex-end; align-items: center; margin-bottom: 18px;">
+            <!-- Thêm ô tìm kiếm ngay trên dropdown sắp xếp -->
+            <div style="display: flex; justify-content: flex-end; align-items: center; margin-bottom: 18px; gap: 16px;">
+                <input type="text" id="searchCourseInput" placeholder="Search course name..." style="padding: 6px 12px; border-radius: 4px; border: 1px solid #ccc; min-width: 220px;">
                 <form id="sortForm" method="get" style="display: flex; align-items: center; gap: 8px;">
                     {% if request.GET.category %}
                         <input type="hidden" name="category" value="{{ request.GET.category }}">
@@ -176,6 +177,41 @@
                 // Tự động submit form khi chọn sort
                 document.getElementById('sort').addEventListener('change', function() {
                     document.getElementById('sortForm').submit();
+                });
+
+                // AJAX tìm kiếm theo tên khóa học
+                $('#searchCourseInput').on('input', function() {
+                    let keyword = $(this).val();
+                    $.ajax({
+                        url: "{% url 'course_search_ajax' %}",
+                        data: {
+                            'q': keyword,
+                            {% if request.GET.category %}'category': '{{ request.GET.category }}',{% endif %}
+                            {% if request.GET.sort %}'sort': '{{ request.GET.sort }}',{% endif %}
+                        },
+                        dataType: 'json',
+                        success: function(data) {
+                            let html = '';
+                            if (data.courses.length > 0) {
+                                data.courses.forEach(function(course) {
+                                    html += `
+                                    <div class="course-row">
+                                        <img src="${course.thumbnail}" alt="${course.courseName}">
+                                        <div class="course-row-content">
+                                            <h3>
+                                                <a href="/courses/${course.courseID}/">${course.courseName}</a>
+                                            </h3>
+                                            <p>${course.description}</p>
+                                            ${course.category ? `<p style="font-size: 0.95em; color: #888;">Category: ${course.category}</p>` : ''}
+                                        </div>
+                                    </div>`;
+                                });
+                            } else {
+                                html = '<p>No courses found.</p>';
+                            }
+                            $('.course-list').html(html);
+                        }
+                    });
                 });
             </script>
 

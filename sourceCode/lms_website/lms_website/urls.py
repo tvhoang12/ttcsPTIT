@@ -50,6 +50,7 @@ urlpatterns = [
     path('courses/<int:courseID>/study/', views.study_course, name='study_course'),
     #categories
     path('categories/search/', views.category_search_ajax, name='category_search_ajax'),
+    path('courses/search/', views.course_search_ajax, name='course_search_ajax'),
 
     path('ckeditor/', include('ckeditor_uploader.urls')),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

@@ -700,3 +700,26 @@ def clear_signup_session(request):
     if 'signup_data' in request.session:
         del request.session['signup_data']
     return HttpResponse("ok")
+
+def course_search_ajax(request):
+    q = request.GET.get('q', '')
+    category_id = request.GET.get('category')
+    sort = request.GET.get('sort', 'newest')
+    courses = Course.objects.all()
+    if category_id:
+        courses = courses.filter(categories__id=category_id)
+    if q:
+        courses = courses.filter(courseName__icontains=q)
+    courses = courses.annotate(enroll_count=Count('enrollment'))
+    # Sắp xếp như cũ...
+    # (copy logic sort từ course_view)
+    data = []
+    for c in courses[:20]:  # Giới hạn 20 kết quả
+        data.append({
+            'courseID': c.courseID,
+            'courseName': c.courseName,
+            'description': c.description[:120] + ('...' if len(c.description) > 120 else ''),
+            'thumbnail': c.thumbnail.url if c.thumbnail else '/media/thumbnails/default-product-card.webp',
+            'category': c.category.name if hasattr(c, 'category') and c.category else '',
+        })
+    return JsonResponse({'courses': data})
