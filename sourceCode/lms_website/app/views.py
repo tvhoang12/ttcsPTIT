@@ -5,7 +5,7 @@ from django.contrib.auth import authenticate, login, get_user_model, logout
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.csrf import csrf_exempt
-from .models import Question, User, Course, Lesson, Contact, Enrollment, CourseCategory, Blog, BlogComment, Chapter
+from .models import Question, User, Course, Lesson, Enrollment, CourseCategory, Blog, BlogComment, Chapter
 from django.db.models import Count, FloatField, F, ExpressionWrapper
 from .forms import CourseForm, BlogForm, ProfileForm, BlogCommentForm  # Sẽ tạo ở bước 2
 from django.core.paginator import Paginator
@@ -129,10 +129,6 @@ def blog_view(request):
 
 def about_view(request):
     return render(request, "app/about.html")
-
-def contact_view(request):
-    # dùng model qu
-    return render(request, "app/practice.html")
 
 def course_view(request):
     category_id = request.GET.get('category')

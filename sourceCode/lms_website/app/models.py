@@ -113,28 +113,7 @@ class Question(models.Model):
 
     def __str__(self):
         return self.question_text
-
-# Liên hệ
-class Contact(models.Model):
-    userName = models.CharField(max_length=40)
-    phoneNumber = models.CharField(max_length=20)
-    emailAddress = models.CharField(max_length=40)
-
-    # Các trường mở rộng
-    address = models.CharField(max_length=200, null=True, blank=True)
-    description = models.TextField(null=True, blank=True)
-    working_hours = models.CharField(max_length=100, null=True, blank=True)
-
-    # Mã nhúng iframe
-    facebook_iframe_code = models.TextField(null=True, blank=True)
-    google_map_iframe_code = models.TextField(null=True, blank=True)
-    
-    created_at = models.DateTimeField(auto_now=True)
-    updated_at = models.DateTimeField(auto_now=True)
-    
-    def __str__(self):
-        return self.userName
-    
+   
 class Enrollment(models.Model):
     user = models.ForeignKey("app.User", on_delete=models.CASCADE)
     course = models.ForeignKey("app.Course", on_delete=models.CASCADE)
