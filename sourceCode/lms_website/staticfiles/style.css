@@ -167,6 +167,7 @@ nav .dropdown:hover .dropdown-content {
 #home .btn {
   background-color: #FDC93B;
   color: #fff;
+  border: 2px solid #FDC93B;
   padding: 1vw 2vw;
   border-radius: 5px;
   text-decoration: none;
@@ -281,6 +282,7 @@ nav .dropdown:hover .dropdown-content {
 .btn {
   background-color: #FDC93B;
   color: #fff;
+  border: 2px solid #FDC93B;
   padding: 1vw 2vw;
   border-radius: 5px;
   text-decoration: none;

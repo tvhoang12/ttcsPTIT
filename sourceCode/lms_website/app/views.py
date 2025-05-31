@@ -16,10 +16,13 @@ from django.core.mail import send_mail
 from django.conf import settings
 from django.contrib.auth.hashers import check_password
 from django.utils import timezone
+from django.utils.crypto import get_random_string
 
 User = get_user_model()
 
 def login_view(request):
+    if request.user.is_authenticated:
+        return redirect("home")
     if request.method == "POST":
         username = request.POST.get("username")
         password = request.POST.get("password")
@@ -37,6 +40,8 @@ def login_view(request):
         return render(request, "app/login.html")
 
 def signup_view(request):
+    if request.user.is_authenticated:
+        return redirect("home")
     if request.method == 'POST':
         first_name = request.POST['first_name']
         last_name = request.POST['last_name']
@@ -164,7 +169,7 @@ def course_view(request):
         "categories": categories,
         "page_obj": page_obj,
     })
-
+@login_required
 def course_inner_view(request, courseID):
     course = Course.objects.get(courseID=courseID)
     is_enrolled = False
@@ -350,17 +355,20 @@ def get_custom_youtube_embed(
     return ''
 
 @login_required
-def new_blog_view(request):
+def new_blog_view(request, blog_id=None):
+    blog = None
+    if blog_id:
+        blog = get_object_or_404(Blog, id=blog_id, author=request.user)
     if request.method == 'POST':
-        form = BlogForm(request.POST, request.FILES)
+        form = BlogForm(request.POST, request.FILES, instance=blog)
         if form.is_valid():
-            blog = form.save(commit=False)
-            blog.author = request.user
-            blog.save()
-            return redirect('blog')  # hoặc redirect tới trang chi tiết bài viết
+            blog_obj = form.save(commit=False)
+            blog_obj.author = request.user
+            blog_obj.save()
+            return redirect('my_blogs')
     else:
-        form = BlogForm()
-    return render(request, 'app/new-blog.html', {'form': form})
+        form = BlogForm(instance=blog)
+    return render(request, 'app/new-blog.html', {'form': form, 'blog': blog})
 
 def blog_detail_view(request, blog_id):
     blog = get_object_or_404(Blog, pk=blog_id)
@@ -411,43 +419,43 @@ def category_search_ajax(request):
     data = [{'id': c.id, 'name': c.name} for c in categories]
     return JsonResponse({'results': data})
 
-@login_required
-def create_lesson_view(request, courseID, chapterID=None):
-    course = get_object_or_404(Course, pk=courseID)
-    chapter = None
-    if chapterID:
-        chapter = get_object_or_404(Chapter, pk=chapterID)
-    if request.method == 'POST':
-        title = request.POST.get('title')
-        lesson_type = request.POST.get('lesson_type', Lesson.THEORY)
-        youtube_url = request.POST.get('youtube_url', '')
-        question_list_title = request.POST.get('question_list_title', '')
+# @login_required
+# def create_lesson_view(request, courseID, chapterID=None):
+#     course = get_object_or_404(Course, pk=courseID)
+#     chapter = None
+#     if chapterID:
+#         chapter = get_object_or_404(Chapter, pk=chapterID)
+#     if request.method == 'POST':
+#         title = request.POST.get('title')
+#         lesson_type = request.POST.get('lesson_type', Lesson.THEORY)
+#         youtube_url = request.POST.get('youtube_url', '')
+#         question_list_title = request.POST.get('question_list_title', '')
 
-        embed_code = ''
-        if lesson_type == Lesson.THEORY and youtube_url:
-            # embed_code = get_youtube_embed_code(youtube_url)
-            embed_code = get_custom_youtube_embed(
-                        youtube_url=youtube_url,
-                        width="100%",
-                        height="100%",
-                        extra_params="vq=hd720"
-                    )
+#         embed_code = ''
+#         if lesson_type == Lesson.THEORY and youtube_url:
+#             # embed_code = get_youtube_embed_code(youtube_url)
+#             embed_code = get_custom_youtube_embed(
+#                         youtube_url=youtube_url,
+#                         width="100%",
+#                         height="100%",
+#                         extra_params="vq=hd720"
+#                     )
 
-        lesson = Lesson.objects.create(
-            course=course,
-            chapter=chapter,
-            title=title,
-            lesson_type=lesson_type,
-            youtube_url=youtube_url if lesson_type == Lesson.THEORY else None,
-            embed_code=embed_code,
-            question_list_title=question_list_title if lesson_type == Lesson.QUESTION else None,
-        )
-        messages.success(request, "lesson created successfully.")
-        return redirect('course_detail', courseID=courseID)
-    return render(request, 'app/create_course.html', {
-        'course': course,
-        'chapter': chapter,
-    })
+#         lesson = Lesson.objects.create(
+#             course=course,
+#             chapter=chapter,
+#             title=title,
+#             lesson_type=lesson_type,
+#             youtube_url=youtube_url if lesson_type == Lesson.THEORY else None,
+#             embed_code=embed_code,
+#             question_list_title=question_list_title if lesson_type == Lesson.QUESTION else None,
+#         )
+#         messages.success(request, "lesson created successfully.")
+#         return redirect('course_detail', courseID=courseID)
+#     return render(request, 'app/create_course.html', {
+#         'course': course,
+#         'chapter': chapter,
+#     })
 
 @login_required
 def enroll_course(request, courseID):
@@ -825,7 +833,7 @@ def edit_blog(request, blog_id):
             messages.error(request, "Please correct the errors below.")
     else:
         form = BlogForm(instance=blog)
-    return render(request, 'app/edit_blog.html', {'form': form, 'blog': blog})
+    return render(request, 'app/edit-blog.html', {'form': form, 'blog': blog})
 
 @login_required
 def delete_blog(request, blog_id):
@@ -835,3 +843,36 @@ def delete_blog(request, blog_id):
         messages.success(request, "Blog deleted successfully.")
         return redirect('my_blogs')
     return render(request, 'app/confirm_delete_blog.html', {'blog': blog})
+
+@csrf_exempt
+def forgot_password(request):
+    if request.method == 'POST':
+        username = request.POST.get('username')
+        email = request.POST.get('email')
+        if not username or not email:
+            messages.error(request, 'Vui lòng nhập đầy đủ username và email.')
+            return redirect('login')
+        try:
+            user = User.objects.get(username=username)
+        except User.DoesNotExist:
+            messages.error(request, 'Tài khoản không tồn tại.')
+            return redirect('login')
+        if user.email != email:
+            messages.error(request, 'Email không khớp với tài khoản.')
+            return redirect('login')
+        # Tạo mật khẩu mới gồm 10 chữ số
+        new_password = get_random_string(length=10, allowed_chars='0123456789')
+        user.set_password(new_password)
+        user.save()
+        # Gửi email mật khẩu mới
+        send_mail(
+            subject='LMS - Mật khẩu mới của bạn',
+            message=f'Mật khẩu mới của bạn là: {new_password}',
+            from_email=settings.DEFAULT_FROM_EMAIL,
+            recipient_list=[email],
+            fail_silently=False,
+        )
+        messages.success(request, 'Mật khẩu mới đã được gửi về email của bạn.')
+        return redirect('login')
+    else:
+        return redirect('login')

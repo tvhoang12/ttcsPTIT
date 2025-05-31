@@ -178,3 +178,13 @@ EMAIL_USE_TLS = True
 EMAIL_HOST_USER = 'bustren12@gmail.com'         # Thay bằng email của bạn
 EMAIL_HOST_PASSWORD = 'qkaw zawi vpev nxok'        # Thay bằng app password (không phải mật khẩu Gmail thông thường)
 DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
+
+REST_FRAMEWORK = {
+    'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
+}
+
+SPECTACULAR_SETTINGS = {
+    'TITLE': 'LMS API',
+    'DESCRIPTION': 'API documentation for LMS website',
+    'VERSION': '1.0.0',
+}

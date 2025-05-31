@@ -146,8 +146,6 @@
             <input type="file" name="thumbnail">
             <label>Description:</label>
             <textarea name="description"></textarea>
-            <label>Price:</label>
-            <input type="number" name="price" step="0.01" required>
             <label>Duration:</label>
             <input type="text" name="duration">
             <label>Level:</label>
@@ -242,8 +240,8 @@
             <h3>Chapter ${chapterCount}</h3>
             <input type="text" name="chapter_title_${chapterCount}" placeholder="Chapter Name" required>
             <div class="lessons" id="lessons_${chapterCount}"></div>
-            <button type="button" class="btn-add-lesson" onclick="addLesson()">+ Add Lesson</button>
-            <button type="button" class="btn-delete-chapter" onclick="deleteChapter(this, ${chapterCount})"">- Delete Chapter</button>
+            <button type="button" class="btn-add-lesson" onclick="addLesson(${chapterCount})">+ Add Lesson</button>
+            <button type="button" class="btn-delete-chapter" onclick="deleteChapter(this, ${chapterCount})">- Delete Chapter</button>
             <hr>
         `;
         document.getElementById('chapters').appendChild(chapterDiv);

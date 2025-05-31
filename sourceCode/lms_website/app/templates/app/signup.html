@@ -18,7 +18,9 @@
         <div class="content">
           <h1>Sign up</h1>
         </div>
+        
         <div class="form">
+          
           {% if request.session.signup_data %}
             <!-- Bước xác thực mã -->
             <form method="POST" action="{% url 'verify_email' %}" id="verifyForm" autocomplete="off">
@@ -73,6 +75,19 @@
               updateTimer();
             </script>
           {% else %}
+            {% if messages %}
+            <div class="messages">
+              {% for message in messages %}
+                <div style="position:relative; margin-bottom:8px;">
+                  <p class="{% if message.tags %}{{ message.tags }}-message{% endif %}" style="margin:0; padding-right:28px;">
+                    {{ message }}
+                  </p>
+                  <button onclick="this.parentElement.style.display='none';"
+                          style="position:absolute;top:0;right:0;background:none;border:none;font-size:20px;line-height:1;color:#888;cursor:pointer;">&times;</button>
+                </div>
+              {% endfor %}
+            </div>
+          {% endif %}
             <!-- Bước đăng ký -->
             <form method="POST" action="{% url 'signup' %}">
               {% csrf_token %}

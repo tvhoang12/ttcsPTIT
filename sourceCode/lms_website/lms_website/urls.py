@@ -38,11 +38,11 @@ urlpatterns = [
     path("blog/", views.blog_view, name="blog"),
     path("blog/<int:blog_id>/", views.blog_detail_view, name="blog_detail"),
     path('blog/new/', views.new_blog_view, name='new_blog'),
+    path('blog/<int:blog_id>/edit/', views.new_blog_view, name='edit_blog'),
     path('blog/search/', views.blog_search_ajax, name='blog_search_ajax'),
     path('my-blogs/', views.my_blog_view, name='my_blogs'),
-    path('blog/<int:blog_id>/edit/', views.edit_blog, name='edit_blog'),
     path('blog/<int:blog_id>/delete/', views.delete_blog, name='delete_blog'),
-    
+    path('forgot_password/', views.forgot_password, name='forgot_password'),
     #courses
     path("courses/", views.course_view, name="courses"),
     path("courses/<int:courseID>/", views.course_inner_view, name="course_detail"),

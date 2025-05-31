@@ -3,7 +3,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>New Blog Post</title>
+    <title>{% if blog %}Edit Blog{% else %}New Blog Post{% endif %}</title>
     <link rel="stylesheet" href="{% static 'style.css' %}">
     <style>
         html, body {
@@ -56,12 +56,12 @@
             width: 85vw !important;
         }
     </style>
-    {{ form.media }}  <!-- Thêm dòng này để load JS/CSS của CKEditor -->
+    {{ form.media }}
 </head>
 <body>
     {% include 'app/navigation.html' %}
     <div class="blog-create-container">
-        <h2>Thêm bài viết mới</h2>
+        <h2>{% if blog %}Chỉnh sửa bài viết{% else %}Thêm bài viết mới{% endif %}</h2>
         <form method="post" enctype="multipart/form-data">
             {% csrf_token %}
             {{ form.non_field_errors }}
@@ -75,7 +75,7 @@
                 {{ form.content }}
                 {{ form.content.errors }}
             </div>
-            <button type="submit" class="btn">Đăng bài</button>
+            <button type="submit" class="btn">{% if blog %}Lưu thay đổi{% else %}Đăng bài{% endif %}</button>
         </form>
         {% if success %}
             <p style="color: green;">Bài viết đã được tạo thành công!</p>
