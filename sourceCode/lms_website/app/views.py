@@ -169,6 +169,7 @@ def course_view(request):
         "categories": categories,
         "page_obj": page_obj,
     })
+
 @login_required
 def course_inner_view(request, courseID):
     course = Course.objects.get(courseID=courseID)
@@ -218,6 +219,8 @@ def profile_view(request):
             new_password = request.POST.get('new_password')
             if not user.check_password(old_password):
                 return JsonResponse({'status': 'error', 'message': 'Mật khẩu cũ không đúng.'}, status=400)
+            if old_password == new_password:
+                return JsonResponse({'status': 'error', 'message': 'Mật khẩu mới không được trùng với mật khẩu cũ. Vui lòng nhập mật khẩu khác.'}, status=400)
             # Tạo mã xác nhận và lưu vào session
             verification_code = str(random.randint(100000, 999999))
             request.session['change_password_code'] = verification_code
@@ -249,11 +252,14 @@ def profile_view(request):
             # Đổi mật khẩu
             user.set_password(new_password)
             user.save()
+            # Đăng xuất người dùng sau khi đổi mật khẩu thành công
+            logout(request)
             # Xóa session
-            del request.session['change_password_code']
-            del request.session['change_password_new']
-            del request.session['change_password_time']
-            return JsonResponse({'status': 'ok', 'message': 'Đổi mật khẩu thành công.'})
+            request.session.pop('change_password_code', None)
+            request.session.pop('change_password_new', None)
+            request.session.pop('change_password_time', None)
+            # Trả về url login để frontend chuyển hướng
+            return JsonResponse({'status': 'ok', 'message': 'Đổi mật khẩu thành công. Vui lòng đăng nhập lại.', 'redirect_url': '/login/'})
         else:
             # Xử lý cập nhật thông tin cá nhân
             form = ProfileForm(request.POST, request.FILES, instance=user)
@@ -288,7 +294,6 @@ def my_courses_view(request):
 
 def logout_view(request):
     logout(request)
-    # messages.success(request, "Logged out successfully.")
     return redirect("home")
 
 @login_required
@@ -411,51 +416,13 @@ def delete_course_view(request, courseID):
         course.delete()
         messages.success(request, "Course deleted successfully.")
         return redirect("my_courses")
-    return render(request, "app/confirm_delete_course.html", {"course": course})
+    return render(request, "app/my_courses.html", {"course": course})
 
 def category_search_ajax(request):
     q = request.GET.get('q', '')
     categories = CourseCategory.objects.filter(name__icontains=q).order_by('name')
     data = [{'id': c.id, 'name': c.name} for c in categories]
     return JsonResponse({'results': data})
-
-# @login_required
-# def create_lesson_view(request, courseID, chapterID=None):
-#     course = get_object_or_404(Course, pk=courseID)
-#     chapter = None
-#     if chapterID:
-#         chapter = get_object_or_404(Chapter, pk=chapterID)
-#     if request.method == 'POST':
-#         title = request.POST.get('title')
-#         lesson_type = request.POST.get('lesson_type', Lesson.THEORY)
-#         youtube_url = request.POST.get('youtube_url', '')
-#         question_list_title = request.POST.get('question_list_title', '')
-
-#         embed_code = ''
-#         if lesson_type == Lesson.THEORY and youtube_url:
-#             # embed_code = get_youtube_embed_code(youtube_url)
-#             embed_code = get_custom_youtube_embed(
-#                         youtube_url=youtube_url,
-#                         width="100%",
-#                         height="100%",
-#                         extra_params="vq=hd720"
-#                     )
-
-#         lesson = Lesson.objects.create(
-#             course=course,
-#             chapter=chapter,
-#             title=title,
-#             lesson_type=lesson_type,
-#             youtube_url=youtube_url if lesson_type == Lesson.THEORY else None,
-#             embed_code=embed_code,
-#             question_list_title=question_list_title if lesson_type == Lesson.QUESTION else None,
-#         )
-#         messages.success(request, "lesson created successfully.")
-#         return redirect('course_detail', courseID=courseID)
-#     return render(request, 'app/create_course.html', {
-#         'course': course,
-#         'chapter': chapter,
-#     })
 
 @login_required
 def enroll_course(request, courseID):
@@ -473,6 +440,7 @@ def enroll_course(request, courseID):
     course.save()
     messages.success(request, "Đăng ký khóa học thành công!")
     return redirect('course_detail', courseID=courseID)
+
 @login_required
 def study_course(request, courseID):
     course = get_object_or_404(Course, pk=courseID)

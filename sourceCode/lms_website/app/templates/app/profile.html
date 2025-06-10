@@ -294,16 +294,15 @@
                 <form method="post" action="{% url 'profile' %}" id="verify-password-code-form" style="display:none; flex-direction: row-reverse; gap: 40px; align-items: flex-start; width: 100%;">
                     {% csrf_token %}
                     <div class="profile-edit-info-box">
-                        <label for="verify_code">Verification Code</label>
-                        <input type="text" name="verify_code" id="verify_code" required>
-                    </div>
-                    <div class="profile-edit-description-box">
                         <h3>Enter Verification Code</h3>
+                        <div id="verify-code-message" style="margin-top:12px;color:#dc3545;"></div>
+                        <input type="text" name="verify_code" id="verify_code" required>
                         <div class="profile-edit-btns">
                             <input type="submit" value="Verify" class="btn btn-sm cancel-btn">
                             <button type="button" id="cancel-verify-code-btn" class="btn btn-sm">Cancel</button>
+                            <button type="button" id="resend-verify-code-btn" class="btn btn-sm">Gửi lại mã xác nhận</button>
                         </div>
-                        <div id="verify-code-message" style="margin-top:12px;color:#dc3545;"></div>
+                        
                     </div>
                 </form>
             </div>
@@ -421,13 +420,38 @@
                     },
                     success: function(data) {
                         if (data.status === 'ok') {
-                            location.reload();
+                            if (data.redirect_url) {
+                                window.location.href = data.redirect_url;
+                            } else {
+                                location.reload();
+                            }
                         } else {
                             $('#verify-code-message').text(data.message || 'Verification failed.');
                         }
                     },
                     error: function(xhr) {
                         $('#verify-code-message').text(xhr.responseJSON && xhr.responseJSON.message ? xhr.responseJSON.message : 'Verification failed.');
+                    }
+                });
+            });
+            $('#resend-verify-code-btn').click(function() {
+                $('#verify-code-message').text('');
+                $.ajax({
+                    url: '{% url "profile" %}',
+                    type: 'POST',
+                    data: {
+                        'action': 'resend_password_code',
+                        'csrfmiddlewaretoken': $('[name=csrfmiddlewaretoken]').val()
+                    },
+                    success: function(data) {
+                        if (data.status === 'ok') {
+                            $('#verify-code-message').css('color', '#28a745').text(data.message || 'Mã xác nhận đã được gửi lại.');
+                        } else {
+                            $('#verify-code-message').css('color', '#dc3545').text(data.message || 'Gửi lại mã thất bại.');
+                        }
+                    },
+                    error: function(xhr) {
+                        $('#verify-code-message').css('color', '#dc3545').text(xhr.responseJSON && xhr.responseJSON.message ? xhr.responseJSON.message : 'Gửi lại mã thất bại.');
                     }
                 });
             });
